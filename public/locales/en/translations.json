@@ -1,0 +1,14 @@
+{
+  "header": {
+    "appName": "Create PCS App",
+    "title": "OpcTwin Applications List",
+    "logout": "Logout"
+  },
+  "tabs": {
+    "start": "start"
+  },
+  "pageHeader": "Start Page",
+  "startCounter": "Start Counter",
+  "resetCounter": "Reset Counter",
+  "count": "Count: {{count}}"
+}

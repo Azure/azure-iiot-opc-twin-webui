@@ -1,0 +1,35 @@
+// Copyright (c) Microsoft. All rights reserved.
+
+@import 'styles/mixins';
+
+$bgColor: #afb9c3;
+$bgColorHover: #494b4d;
+$borderColor: $bgColorHover; //#005e8c;
+.start-container {
+  color: #fff;
+  padding: 20px;
+  @include rem-font-size(20px);
+
+  .hierarchy-level {
+    margin: 5px 0px 5px 20px;
+    padding: 10px 0px 10px 10px;
+    background-color: rgba($bgColor, 0.1);
+    border-color: $borderColor; /* Include default color to avoid odd black-to-color transitions*/
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: rgba($bgColor, 0.05);
+      border-left: 4px solid $borderColor;
+    }
+
+    .hierarchy-name {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .node-details {
+      padding-left: 10px;
+      @include rem-font-size(16px);
+    }
+  }
+}
