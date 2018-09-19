@@ -3,9 +3,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { joinClasses } from 'utilities';
+import { isFunc, joinClasses } from 'utilities';
 
-import './formGroup.css';
+import './styles/formGroup.css';
 
 let idCounter = 0;
 
@@ -19,7 +19,12 @@ export class FormGroup extends Component {
   render() {
     // Attach the formGroupId to allow automatic focus when a label is clicked
     const childrenWithProps = React.Children.map(this.props.children,
-      child => React.cloneElement(child, { formGroupId: this.formGroupId })
+      child => {
+        if (React.isValidElement(child) && isFunc(child.type)) {
+          return React.cloneElement(child, { formGroupId: this.formGroupId });
+        }
+        return child;
+      }
     );
     return <div className={joinClasses('form-group', this.props.className)}>{childrenWithProps}</div>;
   }

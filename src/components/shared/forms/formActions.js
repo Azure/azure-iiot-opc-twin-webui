@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import { joinClasses } from 'utilities';
 
-import './formActions.css';
+import './styles/formActions.css';
 
 export const FormActions = (props) => (
   <div className={joinClasses('form-actions-container', props.className)}>{props.children}</div>

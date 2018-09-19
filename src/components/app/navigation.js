@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { translate } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
-import { Svg } from 'components/shared';
+import { Svg } from '../shared';
 
 import { svgs } from 'utilities';
 

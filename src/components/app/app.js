@@ -13,7 +13,7 @@ import PageContent from './pageContent';
 import  {
   StartContainer as StartPage,
   PageNotFound
-} from 'components/pages';
+} from '../pages';
 
 import './app.css';
 
@@ -30,7 +30,7 @@ class App extends Component {
               <Redirect exact from="/" to="/start" />
               <Route exact path="/start" component={StartPage} />
               <Route component={PageNotFound} />
-            </Switch>
+            </Switch>     
           </PageContent>
         </Main>
       </div>

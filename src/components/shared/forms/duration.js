@@ -3,13 +3,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { Svg } from 'components/shared/svg';
+import { Svg } from 'components/shared/svg/svg';
 import { FormLabel } from './formLabel';
 import { FormGroup } from './formGroup';
 import { FormControl } from './formControl';
 import { svgs, joinClasses, isFunc, int } from 'utilities';
 
-import './duration.css';
+import './styles/duration.css';
 
 export class Duration extends Component {
 

@@ -3,10 +3,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Svg } from 'components/shared/svg';
+import { Svg } from 'components/shared/svg/svg';
 import { joinClasses, svgs } from 'utilities';
 
-import './errorMsg.css';
+import './styles/errorMsg.css';
 
 export const ErrorMsg = (props) => {
   const { children, className } = props;

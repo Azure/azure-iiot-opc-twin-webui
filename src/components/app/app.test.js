@@ -8,7 +8,7 @@ import i18n from 'i18next';
 import { I18nextProvider } from 'react-i18next';
 import { mount } from 'enzyme';
 import configureStore from 'store/configureStore';
-import AppContainer from 'components/app/app.container';
+import AppContainer from './app.container';
 
 // Initialize internationalization for testing
 i18n

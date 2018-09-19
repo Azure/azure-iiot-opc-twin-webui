@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-@import 'styles/variables';
-@import 'styles/themes';
-@import 'styles/mixins';
+@import 'src/styles/variables';
+@import 'src/styles/themes';
+@import 'src/styles/mixins';
 
 $navItemHeight: 48px;
 $leftNavExpandedWidth: 220px;
@@ -33,8 +33,15 @@ $companySvgSize: 23px;
     .nav-item-icon {
       @include square-px-rem($navItemHeight);
 
-      svg { @include square-px-rem($svgSize); }
+      img,
+      svg {
+        @include square-px-rem($svgSize);
+        margin: 10px;
+      }
     }
+
+    &.company .nav-item-icon img { @include square-px-rem($companySvgSize); }
+    &.company .nav-item-icon svg { @include square-px-rem($companySvgSize); }
 
     .nav-item-text {
       display: none;
@@ -53,7 +60,6 @@ $companySvgSize: 23px;
     cursor: pointer;
 
     &.active,
-    &:active,
     &:focus,
     &:hover { font-family: $fontSelawikSemibold; }
   }
@@ -70,25 +76,27 @@ $companySvgSize: 23px;
 
   // Apply theme properties
   @include themify($themes) {
-    background-color: themed('colorLowestThird');
-    color: themed('colorHighest');
+    background-color: themed('colorNavBg');
+    color: themed('colorNavText');
 
     .nav-item {
-      color: themed('colorHighest');
+      color: themed('colorNavText');
 
-      .nav-item-icon svg { fill: themed('colorLightestFirst');}
+      .nav-item-icon svg { fill: themed('colorNavItemIcon'); }
+
+      &.company .nav-item-icon svg { fill: themed('colorNavText'); }
     }
 
     a.nav-item,
     .nav-item.hamburger {
-      color: themed('colorLightestFirst');
+      color: themed('colorNavItemIcon');
 
       &.active,
       &:hover {
-        color: themed('colorHighest');
-        background-color: themed('colorLowestSecond');
+        color: themed('colorNavText');
+        background-color: themed('colorNavItemBgHover');
 
-        .nav-item-icon svg { fill: themed('colorHighest'); }
+        .nav-item-icon svg { fill: themed('colorNavText'); }
       }
     }
   }

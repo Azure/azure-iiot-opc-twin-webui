@@ -3,6 +3,7 @@
 import { Observable } from 'rxjs';
 import { HttpClient } from './httpClient';
 import { getItems } from 'utilities';
+import { toReadValueModel } from './models';
 
 const ENDPOINT_REGISTRY = 'http://localhost:9042/v1/';
 const ENDPOINT_OPC_TWIN = 'http://localhost:9041/v1/';
@@ -50,7 +51,6 @@ const createReferenceHelper = () => {
 
 const createReference = (references) => {
   return {
-
     browseName: references.browseName,
     direction: references.direction,
     displayName: references.displayName
@@ -67,8 +67,9 @@ export class OpcTwinService {
    * Returns a list of devicemodels
    */
   static getApplicationsList() {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}Applications`, undefined, false)
-      .map(getItems);
+    const value = HttpClient.get(`${ENDPOINT_REGISTRY}Applications`, undefined, false)
+     .map(getItems);
+     return value;
   }
 
   static getApplication(id) {
@@ -77,9 +78,10 @@ export class OpcTwinService {
 
   static browseNode(endpointId, nodeId) {
     const queryString = nodeId ? `?nodeId=${encodeURIComponent(nodeId)}` : '';
-    return HttpClient.get(`${ENDPOINT_OPC_TWIN}Browse/${endpointId}${queryString}`, undefined, false)
+    const value = HttpClient.get(`${ENDPOINT_OPC_TWIN}Browse/${endpointId}${queryString}`, undefined, false);
       // Temp: only for making fake data
-       .map(({ node, references }) => ({
+    return value
+      .map(({ node, references }) => ({
         node,
         references
       }))
@@ -88,6 +90,17 @@ export class OpcTwinService {
         node,
         references: [ ...references, createReferenceHelper() ]
       }));*/
+  }
+
+  static readNodeValue(endpointId, nodeId) {
+    const queryString = nodeId ? `?nodeId=${encodeURIComponent(nodeId)}` : '';
+    const value = HttpClient.get(`${ENDPOINT_OPC_TWIN}Read/${endpointId}${queryString}`, undefined, false)
+      .map(toReadValueModel);
+    return value;
+  }
+
+  static writeNodeValue(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Write/${endpointId}`, payload);
   }
 
   static browseNodeNext(continuationToken = '') {

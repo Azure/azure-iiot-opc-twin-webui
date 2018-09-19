@@ -11,6 +11,7 @@ const mapDispatchToProps = dispatch => ({
   logout: () => AuthService.logout()
 });
 
-const AppContainer = withRouter(translate()(connect(undefined, mapDispatchToProps)(App)));
+
+const AppContainer = withRouter(translate()(connect(undefined, mapDispatchToProps)(App)))
 
 export default AppContainer;

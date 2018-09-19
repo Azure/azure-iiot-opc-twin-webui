@@ -1,14 +1,18 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from 'react';
-import { ErrorMsg, Indicator } from 'components/shared';
+import { ErrorMsg, Indicator } from '../shared';
 import { isDef } from 'utilities';
 
-import { pendingApplications, pendingEndpoints, pendingNode } from 'store/reducers/appReducer';
-import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
+import { pendingApplications, pendingEndpoints, pendingNode, pendingRead } from 'store/reducers/appReducer';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu/modules";
+import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 
 import './start.css';
 import './react-contextmenu.css';
+import PageContent from '../app/pageContent';
+import { OpcTwinService } from 'services';
+
 
 const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
 
@@ -28,6 +32,9 @@ class NodeApi {
       ? this.componentRef.props.nodes[endpointId][nodeId]
       : undefined;
   getReferences = (endpointId, nodeId = 'ROOT') => this.componentRef.props.references[endpointId][nodeId];
+  getValue = () => this.componentRef.props.values;
+
+
   isError = (flagName) => this.componentRef.props.errors[flagName];
   isPending = (flagName) => this.componentRef.props.pendingStates[flagName];
 
@@ -38,26 +45,48 @@ class NodeApi {
   isNodePending = (endpointId, nodeId) => this.isPending(pendingNode(endpointId, nodeId));
   isEndpointsPending = (applicationId) => this.isPending(pendingEndpoints(applicationId));
   isApplicationsPending = () => this.isPending(pendingApplications());
+  isReadPending = (endpointId, nodeId) => this.isPending(pendingRead(endpointId, nodeId));
 
   // Action creator wrappers
   fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
   fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
+  fetchValue = (endpointId, nodeId) => this.componentRef.props.fetchValue(endpointId, nodeId);
+  resetValue = () => this.componentRef.props.resetValue();
 }
 
 const Expander = ({ expanded }) => <span>[{ expanded ? '-' : '+'}]</span>
+const closedFlyoutState = { openFlyoutName: undefined };
 
 class DataNode extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { expanded: false };
+    this.state = { 
+      expanded: false,
+      ...closedFlyoutState
+    };
   }
+
+  closeFlyout = () => {
+    const { api } = this.props;
+
+    this.setState(closedFlyoutState);
+  
+  }
+  openBrowseFlyout = () => this.setState({ openFlyoutName: 'Browse' });
 
   toggle = () => {
     const { data, api, endpoint } = this.props;
-    // TODO: Prevent calling again if pending state is active
-    if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
-    this.setState({ expanded: !this.state.expanded });
+
+    if (data.children){
+      // TODO: Prevent calling again if pending state is active
+      if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
+      this.setState({ expanded: !this.state.expanded });
+    }
+    else {
+      console.log("name:",data.displayName);
+      this.openBrowseFlyout();
+    }
   }
 
   handleClick = (e, data) => {
@@ -68,40 +97,30 @@ class DataNode extends Component {
     const { data, api, endpoint } = this.props;
     const targets = (api.getReferences(endpoint, data.id) || [])
       .map(targetId => api.getNode(endpoint, targetId));
-    const error = api.isNodeError(endpoint, data.id);
-    const MENU = "menu" + data.id;
+      const error = api.isNodeError(endpoint, data.id);
+      const aa = api.getValue(endpoint, data.id);
+
+    const browseFlyoutOpen = this.state.openFlyoutName === 'Browse';
+
     return (
-      <div>
-        <ContextMenuTrigger id={MENU}  holdToDisplay={1000}>
-          <div className="hierarchy-level">
-          <div className="hierarchy-name" onClick={this.toggle}>
-            {data.displayName}
-            {data.children ? <Expander expanded={this.state.expanded} /> : null}
-            { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
-          </div>
-
-          <div className="node-details">
-            {data.description}
-          </div>
-          {
-            error ? <ErrorMsg>{ error.errorMessage }</ErrorMsg> : null
-          }
-          {
-            this.state.expanded
-              && <DataNodeList data={targets} api={api} endpoint={endpoint} />
-          }
+      <div className="hierarchy-level">
+        <div className="hierarchy-name" onClick={this.toggle}>
+          { data.displayName }
+          { data.children ? <Expander expanded={this.state.expanded} /> : null }
+          { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
         </div>
-      </ContextMenuTrigger>
-
-      <ContextMenu id={MENU}>
-      <MenuItem data={{item: data.displayName}} onClick={this.handleClick}>
-          Read1
-      </MenuItem>
-      <MenuItem onClick={this.handleClick}>
-          Write2
-      </MenuItem>
-      </ContextMenu>
-    </div>
+        <div className="node-details">
+          { data.description }
+        </div>
+        {
+          error ? <ErrorMsg>{ error.errorMessage }</ErrorMsg> : null
+        }
+        {
+          this.state.expanded
+             && <DataNodeList data={targets} api={api} endpoint={endpoint} />
+        }    
+        { browseFlyoutOpen && <ManageBrowseMethodsContainer onClose={this.closeFlyout} endpoint={endpoint} data={data} api={api} values={api.getValue()}/> }     
+      </div>
     );
   }
 }
@@ -216,6 +235,7 @@ export class Start extends Component {
 
   render() {
     const { applications, errors } = this.props;
+
     return (
       <div className="start-container">
         { this.nodeApi.isApplicationsPending() && <Indicator /> }

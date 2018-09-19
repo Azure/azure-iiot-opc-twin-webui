@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import AuthenticationContext from 'adal-angular/dist/adal.min.js'
+import AuthenticationContext from 'adal-angular/dist/adal.min'
 import { Observable } from 'rxjs';
 
 export class AuthService {

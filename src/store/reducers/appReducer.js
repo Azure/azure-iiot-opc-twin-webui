@@ -10,16 +10,20 @@ import { isDef } from 'utilities';
 import {
   createReducerScenario,
   createEpicScenario
-} from 'store/utilities';
+} from '../utilities';
 
 // ========================= Pending State Flag Generators - START
 export const pendingApplications = () => 'FETCHING_APPLICATIONS';
 export const pendingEndpoints = (appId) => `FETCHING_ENDPOINTS_${appId}`;
 export const pendingNode = (endpointId, nodeId = 'ROOT') => `FETCHING_NODE_${endpointId}_${nodeId}`;
+export const pendingRead = () => `FETCHING_READ_DATA`;
 // ========================= Pending State Flag Generators - START
 
 export const toActionCreatorWithPending = (actionCreator, fromAction, pendingFlag) =>
   payload => actionCreator(payload, { fromAction, pendingFlag });
+
+export const toActionCreator = (actionCreator, fromAction ) =>
+  payload => actionCreator(payload, { fromAction });
 
 const handleError = (errorFlag, fromAction) => error =>
   Observable.of(redux.actions.registerError(errorFlag, { error, fromAction }));
@@ -56,16 +60,33 @@ export const epics = createEpicScenario({
     epic: fromAction => {
       const { endpointId, nodeId } = fromAction.payload;
       const pendingFlag = pendingNode(endpointId, nodeId);
-      return OpcTwinService.browseNode(endpointId, nodeId)
+      const value = OpcTwinService.browseNode(endpointId, nodeId);
+      return value
         .map(toActionCreatorWithPending(redux.actions.updateRootNode, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
-      /*return OpcTwinService.browseNode(endpointId, nodeId)
-        .map(toActionCreatorWithPending(redux.actions.updateRootNode, fromAction, pendingFlag))
-        .startWith(redux.actions.startPendingState(pendingFlag))
-        .catch(handleError(pendingFlag, fromAction));*/
     }
   },
+  fetchValue: {
+    type: 'FETCH_VALUE',
+    epic: fromAction => {
+      const { endpointId, nodeId } = fromAction.payload;
+      const pendingFlag = pendingRead();
+      const value = OpcTwinService.readNodeValue(endpointId, nodeId);
+      return value
+        .map(toActionCreatorWithPending(redux.actions.updateReadValue, fromAction, pendingFlag))
+        .startWith(redux.actions.startPendingState(pendingFlag))
+        .catch(handleError(pendingFlag, fromAction));
+    }
+  },
+  resetValue: {
+    type: 'RESET',
+    epic: fromAction => {
+      const value = { value: null};
+      return value
+        .map(toActionCreator(redux.actions.resetValue, fromAction));
+    }
+  }
   // fetchNextNode: {
   //   type: 'FETCH_NODE',
   //   epic: fromAction => {
@@ -81,18 +102,6 @@ export const epics = createEpicScenario({
 // ========================= Epics - END
 
 // ========================= Schemas - START
-/*const endpointEntity = new schema.Entity('endpoints');
-const endpointListSchema = new schema.Array(endpointEntity);
-const applicationEntity = new schema.Entity('applications', { endpoints: endpointListSchema }, { idAttribute: 'applicationId'});
-const applicationListSchema = new schema.Array(applicationEntity);
-const nodeEntity = new schema.Entity('nodes');
-const referenceEntity = new schema.Entity('references', { target: nodeEntity });
-const referenceListSchema = new schema.Array(referenceEntity);
-const browseNodeResponse = new schema.Object({
-  node: nodeEntity,
-  references: referenceListSchema
-});*/
-
 const endpointEntity = new schema.Entity('endpoints');
 const endpointListSchema = new schema.Array(endpointEntity);
 const applicationEntity = new schema.Entity('applications', { endpoints: endpointListSchema }, { idAttribute: 'applicationId'});
@@ -100,7 +109,6 @@ const applicationListSchema = new schema.Array(applicationEntity);
 
 const nodeEntity = new schema.Entity('nodes');
 const referenceEntity = new schema.Entity('references', { target: nodeEntity });
-const referenceEntity1 = new schema.Entity('references');
 
 const referenceListSchema = new schema.Array(referenceEntity);
 const browseNodeResponse = new schema.Object({
@@ -119,7 +127,9 @@ const initialState = {
     references: {}
   },
   pendingStates: {},
-  errors: {}
+  errors: {},
+  browseFlyoutIsOpen: false,
+  value: {}
 };
 
 const unsetPendingFlag = flag => ({ pendingStates: { $unset: [flag] }});
@@ -173,9 +183,6 @@ const updateApplicationWithEndpointReducer = (state, action) => {
 const updateRootNodeReducer = (state, action) => {
   for(var i = 0; i < action.payload.references.length; i++) {
     action.payload.references[i].id = i;
-    //if (action.payload.references.filter(x => x.id.includes(action.payload.references[i].id))) {
-    //  action.payload.references[i].id += i;
-    //}
   }
 
   const normalizeData = normalize(action.payload, browseNodeResponse);
@@ -202,13 +209,37 @@ const updateRootNodeReducer = (state, action) => {
   });
 }
 
+const updateReadValueReducer = (state, action) => {
+  const readValue = action.payload.value;
+
+  return update(state, {
+    value: { $set: readValue },
+    ...unsetPendingFlag(action.pendingFlag)
+  });
+}
+
+const resetValueReducer = (state, action) => {
+  const readValue = {};
+
+  return update(state, {
+    value: { $set: readValue },
+    ...unsetPendingFlag(action.pendingFlag)
+  });
+}
+
+const setBrowseFlyoutReducer = (state, { payload }) => update(state, {
+  browseFlyoutIsOpen: { $set: !!payload }
+});
 
 export const redux = createReducerScenario({
   updateApplication: { type: 'UPDATE_APPLICATIONS', reducer: updateApplicationsReducer },
   updateApplicationWithEndpoint: { type: 'UPDATE_APPLICATION_WITH_ENDPOINT', reducer: updateApplicationWithEndpointReducer },
   updateRootNode: { type: 'UPDATE_ROOT_NODE', reducer: updateRootNodeReducer },
   startPendingState: { type: 'START_PENDING_STATE', reducer: startPendingStateReducer },
-  registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer }
+  registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer },
+  setBrowseFlyoutStatus: { type: 'APP_SET_BROWSE_FLYOUT_STATUS', reducer: setBrowseFlyoutReducer },
+  updateReadValue: { type: 'UPDATE_VALUE', reducer: updateReadValueReducer },
+  resetValue: { type: 'RESET_VALUE', reducer: resetValueReducer }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -223,4 +254,6 @@ export const getNodes = state => getEntities(state).nodes;
 export const getReferences = state => getEntities(state).references;
 export const getPendingStates = state => getAppReducer(state).pendingStates;
 export const getErrors = state => getAppReducer(state).errors;
+export const getBrowseFlyoutStatus = state => getAppReducer(state).browseFlyoutIsOpen;
+export const getValues = state => getAppReducer(state).value;
 // ========================= Selectors - END

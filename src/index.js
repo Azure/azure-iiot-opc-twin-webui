@@ -11,10 +11,10 @@ import registerServiceWorker from 'registerServiceWorker';
 import { AuthService } from 'services';
 
 // Initialize internationalization
-import './i18n';
+import 'i18n';
 
 // Include cross browser polyfills
-import './polyfills';
+import 'polyfills';
 
 // Include base page css
 import './index.css';

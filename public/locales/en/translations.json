@@ -10,5 +10,16 @@
   "pageHeader": "Start Page",
   "startCounter": "Start Counter",
   "resetCounter": "Reset Counter",
-  "count": "Count: {{count}}"
+  "count": "Count: {{count}}",
+  "browseFlyout":{
+    "title": "Manage Opc UA Nodes",
+    "selectAction": "Select Action",
+    "close": "Close",
+    "apply": "Apply",
+    "options": {
+      "read": "Read",
+      "write": "Write",
+      "method": "Method"
+    }
+  }
 }
