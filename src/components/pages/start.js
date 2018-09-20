@@ -11,7 +11,6 @@ import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import './start.css';
 import './react-contextmenu.css';
 import PageContent from '../app/pageContent';
-import { OpcTwinService } from 'services';
 
 
 const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
@@ -32,8 +31,6 @@ class NodeApi {
       ? this.componentRef.props.nodes[endpointId][nodeId]
       : undefined;
   getReferences = (endpointId, nodeId = 'ROOT') => this.componentRef.props.references[endpointId][nodeId];
-  getValue = () => this.componentRef.props.values;
-
 
   isError = (flagName) => this.componentRef.props.errors[flagName];
   isPending = (flagName) => this.componentRef.props.pendingStates[flagName];
@@ -45,13 +42,11 @@ class NodeApi {
   isNodePending = (endpointId, nodeId) => this.isPending(pendingNode(endpointId, nodeId));
   isEndpointsPending = (applicationId) => this.isPending(pendingEndpoints(applicationId));
   isApplicationsPending = () => this.isPending(pendingApplications());
-  isReadPending = (endpointId, nodeId) => this.isPending(pendingRead(endpointId, nodeId));
+  isReadPending = () => this.isPending(pendingRead());
 
   // Action creator wrappers
   fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
   fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
-  fetchValue = (endpointId, nodeId) => this.componentRef.props.fetchValue(endpointId, nodeId);
-  resetValue = () => this.componentRef.props.resetValue();
 }
 
 const Expander = ({ expanded }) => <span>[{ expanded ? '-' : '+'}]</span>
@@ -89,16 +84,11 @@ class DataNode extends Component {
     }
   }
 
-  handleClick = (e, data) => {
-    console.log("name:",data.item);
-  }
-
   render() {
     const { data, api, endpoint } = this.props;
     const targets = (api.getReferences(endpoint, data.id) || [])
       .map(targetId => api.getNode(endpoint, targetId));
       const error = api.isNodeError(endpoint, data.id);
-      const aa = api.getValue(endpoint, data.id);
 
     const browseFlyoutOpen = this.state.openFlyoutName === 'Browse';
 
@@ -119,7 +109,7 @@ class DataNode extends Component {
           this.state.expanded
              && <DataNodeList data={targets} api={api} endpoint={endpoint} />
         }    
-        { browseFlyoutOpen && <ManageBrowseMethodsContainer onClose={this.closeFlyout} endpoint={endpoint} data={data} api={api} values={api.getValue()}/> }     
+        { browseFlyoutOpen && <ManageBrowseMethodsContainer onClose={this.closeFlyout} endpoint={endpoint} data={data} api={api} /> }     
       </div>
     );
   }

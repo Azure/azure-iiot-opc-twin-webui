@@ -14,7 +14,8 @@ import {
   FormSection,
   SectionDesc,
   SectionHeader,
-  Protected 
+  SummaryBody,
+  SummarySection
 } from 'components/shared';
 
 import Flyout from 'components/shared/flyout';
@@ -22,20 +23,18 @@ import Flyout from 'components/shared/flyout';
 //import DeviceGroups from './views/deviceGroups';
 
 import './manageBrowse.css';
+import { toWriteValueModel } from 'services/models';
 
 const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
-const actionType = ['read', 'write', 'method'];
+const actionType = [];
 
-const initialState = {
+/* const initialState = {
   isPending: false,
   error: undefined,
   changesApplied: false,
   methodName: undefined
-};
+}; */
 
-const readState = { value: '' };
-
-//export class ManageDeviceGroups extends LinkedComponent {
 export class ManageBrowseMethods extends LinkedComponent {
 
   constructor(props) {
@@ -45,13 +44,14 @@ export class ManageBrowseMethods extends LinkedComponent {
       action: '',
       changesApplied: false,
       isPending: false,
-      value: {}
+      value: {},
+      error: {}
     };
 
+    this.checkAccessLevel();
     this.actionLink = this.linkTo('action').map(({ value }) => value);
+    this.writeValueLink = this.linkTo('writeValue');
   }
-
-  //fetchValue = (endpointId, nodeId) => this.componentRef.props.fetchValue(endpointId, nodeId);
 
   apply = (event) => {
     event.preventDefault();
@@ -60,48 +60,61 @@ export class ManageBrowseMethods extends LinkedComponent {
 
       const { endpoint, data, api } = this.props;
 
-      api.fetchValue(endpoint, data.id);
-     
-      const pending = api.isReadPending(endpoint, data.id);
-
-      /* OpcTwinService.readNodeValue(endpoint, data.id)
-        .then(res => {
-          return res.json()
-          }).then(response => {
-          this.setState({value: response.value})
-      }) */
-
-        /* .subscribe(
-          () => {
-            this.setState({ isPending: false, changesApplied: true });
-          },
-          error => {
-            this.setState({ error, isPending: false, changesApplied: true });
-          }
-        );  */
-        const xx =1;
+      switch (this.actionLink.value) {
+        case 'read':
+          //api.fetchValue(endpoint, data.id);
+          this.subscription = OpcTwinService.readNodeValue(endpoint, data.id)
+          .subscribe(
+            (response) => {
+              this.setState({ value: response.value })
+              this.setState({ isPending: false });
+            },
+            error => this.setState({ error })
+          );
+          this.setState({ isPending:  api.isReadPending()});
+        break;
+        case 'write':
+          this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, parseInt(this.writeValueLink.value)), null, 2))
+          .subscribe(
+            () => {},
+            error => this.setState({ error })
+          );
+        break;
+        case 'call':
+        break;
+      }
         this.setState({ changesApplied: true });
-
   }
 
+  checkAccessLevel = () => {
+    const { data } = this.props;
+
+    actionType.length = 0;
+
+    if (data.accessLevel.includes("Read")) {
+      actionType.push('read');
+    }
+    if (data.accessLevel.includes("Write")) {
+      actionType.push('write');
+    }
+  }
+
+  selectionisValid() {
+    return this.actionLink.value != ""; 
+  }
+
+  isWrite () {
+    return this.actionLink.value == "write"; 
+  }
 
   render() {
-    const { t, onClose, api, values, endpoint, data } = this.props;
+    const { t, onClose, api, data } = this.props;
     const { isPending, changesApplied, value } = this.state;
-
-    let pending = api.isReadPending();
 
     const actionOptions = actionType.map((value) => ({
       label: t(`browseFlyout.options.${value}`),
       value
     }));
-
-
-    if (isDef(api.isReadPending()) || (api.isReadPending() == true)) {
-      pending = true;
-    } else {
-      pending = false;
-    }
 
     return (
       <Flyout.Container>
@@ -112,24 +125,46 @@ export class ManageBrowseMethods extends LinkedComponent {
         <Flyout.Content className="browse-container">
           <form onSubmit={this.apply}>
             <FormSection className="browse-container">
-              {/* <SectionHeader>{t('browseFlyout.title')}</SectionHeader> */}
-              <SectionDesc>{''}</SectionDesc>
+              <SectionHeader>{data.displayName}</SectionHeader>
+              <SectionDesc>{t('browseFlyout.nodeName')}</SectionDesc>
 
               <FormGroup>
                 <FormLabel>{t('browseFlyout.selectAction')}</FormLabel>
                 <FormControl
                       type="select"
-                      className="browse-dropdown"
+                      className="long"
                       options={actionOptions}
                       searchable={false}
                       clearable={false}
                       placeholder={'Select'}
                       link={this.actionLink} />
               </FormGroup>
+
+              { 
+                this.isWrite() &&
+                <FormGroup>
+                  <FormLabel>{t('browseFlyout.value')}</FormLabel>
+                  <div className="help-message">{t('browseFlyout.writeMessage')}</div>
+                  <FormControl className="long" link={this.writeValueLink} type="text" placeholder={t('browseFlyout.writeMessage')} />
+                </FormGroup>
+              }
+              {
+                changesApplied && 
+                <SummarySection>
+                <SectionHeader>{t('browseFlyout.value')}</SectionHeader>
+                  <SummaryBody>
+                  
+                    <SectionDesc>
+                      { isPending ? <Indicator /> : null }
+                      { changesApplied && <Json>{ value }</Json> } 
+                    </SectionDesc>
+                  </SummaryBody>
+                </SummarySection>
+              }
               {
                 !changesApplied &&
                 <BtnToolbar>
-                  <Btn svg={svgs.reconfigure} primary={true} disabled={ isPending } type="submit">{t('browseFlyout.apply')}</Btn>
+                  <Btn svg={svgs.reconfigure} primary={true} disabled={ !this.selectionisValid() } type="submit">{t('browseFlyout.apply')}</Btn>
                   <Btn svg={svgs.cancelX} onClick={onClose}>{t('browseFlyout.close')}</Btn>
                 </BtnToolbar>
               }
@@ -138,13 +173,7 @@ export class ManageBrowseMethods extends LinkedComponent {
                 <BtnToolbar>
                   <Btn svg={svgs.cancelX} onClick={onClose}>{t('browseFlyout.close')}</Btn>
                 </BtnToolbar>
-
               }
-              { api.isReadPending() ? <Indicator /> : null }
-              { changesApplied && <Json>{ values }</Json> } 
-                 
-              
-              
           </FormSection>
           </form>
         </Flyout.Content>

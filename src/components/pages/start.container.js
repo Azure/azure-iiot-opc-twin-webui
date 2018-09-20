@@ -12,9 +12,7 @@ import {
   getNodes,
   getPendingStates,
   getReferences,
-  getErrors,
-  getBrowseFlyoutStatus,
-  getValues
+  getErrors
 } from 'store/reducers/appReducer';
 
 const mapStateToProps = state => ({
@@ -24,9 +22,7 @@ const mapStateToProps = state => ({
   nodes: getNodes(state),
   pendingStates: getPendingStates(state),
   references: getReferences(state),
-  errors: getErrors(state),
-  browseFlyoutIsOpen: getBrowseFlyoutStatus(state),
-  values: getValues(state)
+  errors: getErrors(state)
 });
 
 const mapDispatchToProps = dispatch => {
@@ -35,9 +31,7 @@ const mapDispatchToProps = dispatch => {
   return {
     fetchApplications: () => dispatch(epics.actions.fetchApplications()),
     fetchEndpoints: (applicationId) => dispatch(epics.actions.fetchEndpoints(applicationId)),
-    fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId })),
-    fetchValue: (endpointId, nodeId) => dispatch(epics.actions.fetchValue({ endpointId, nodeId })),
-    resetValue: () => dispatch(epics.actions.resetValue())
+    fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId }))
   };
 }
 

@@ -33,7 +33,11 @@ class Header extends Component {
   render() {
     return (
       <header className="app-header">
-        <div className="breadcrumbs">{ this.props.t('header.title') }</div>
+        <div className="breadcrumbs">
+          <div className="crumb">
+            { this.props.t('header.title') }
+          </div>
+        </div>
         <div className="label">{ this.props.t('header.appName') }</div>
         <div className="items-container">
           <button className="item-icon profile" onClick={this.toggleDropdown}>

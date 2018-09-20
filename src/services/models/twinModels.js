@@ -6,3 +6,9 @@ export const toReadValueModel = (response = {}) => ({
     value: response.value
 });
 
+export const toWriteValueModel = (params = {}, value) => ({
+    nodeId: params.id,
+    value: value,
+    dataType: params.dataType
+});
+

@@ -1,7 +1,7 @@
 {
   "header": {
-    "appName": "Create PCS App",
-    "title": "OpcTwin Applications List",
+    "appName": "OpcTwin App",
+    "title": "Browse page",
     "logout": "Logout"
   },
   "tabs": {
@@ -16,10 +16,13 @@
     "selectAction": "Select Action",
     "close": "Close",
     "apply": "Apply",
+    "nodeName": "Node  display name",
+    "value": "Value:",
+    "writeMessage" : "Enter value to write",
     "options": {
       "read": "Read",
       "write": "Write",
-      "method": "Method"
+      "call": "call"
     }
   }
 }
