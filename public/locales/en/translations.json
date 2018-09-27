@@ -18,7 +18,8 @@
     "apply": "Apply",
     "nodeName": "Node  display name",
     "value": "Value:",
-    "writeMessage" : "Enter value to write",
+    "writeMessage": "Enter value to write",
+    "errorMessage": "Operation failed: ",
     "options": {
       "read": "Read",
       "write": "Write",

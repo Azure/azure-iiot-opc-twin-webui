@@ -45,7 +45,11 @@ export class OpcTwinService {
     return HttpClient.post(`${ENDPOINT_OPC_TWIN}Write/${endpointId}`, payload);
   }
 
+  static callNodeMethodMetadata(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_OPC_TWIN}Call/${endpointId}/$metadata`, payload);
+  }
+
   static callNodeMethod(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_OPC_TWIN}Write/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_OPC_TWIN}Call/${endpointId}`, payload);
   }
 }

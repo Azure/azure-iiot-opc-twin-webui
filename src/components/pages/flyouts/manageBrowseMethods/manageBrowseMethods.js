@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import React from 'react';
+import React, { Component } from 'react';
 import { LinkedComponent, svgs, isDef } from 'utilities';
 import { OpcTwinService } from 'services';
-import { Indicator } from 'components/shared';
+import { Indicator } from '../../../shared';
 
 import { 
   FormControl,
@@ -16,24 +16,18 @@ import {
   SectionHeader,
   SummaryBody,
   SummarySection
-} from 'components/shared';
+} from '../../../shared';
 
-import Flyout from 'components/shared/flyout';
-//import DeviceGroupForm from './views/deviceGroupForm';
-//import DeviceGroups from './views/deviceGroups';
-
+import Flyout from '../../../shared/flyout';
 import './manageBrowse.css';
-import { toWriteValueModel } from 'services/models';
+import { 
+  toWriteValueModel,
+  toCallNodeMethodMetadataModel,
+  toCallNodeMethodModel
+} from 'services/models';
 
 const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
 const actionType = [];
-
-/* const initialState = {
-  isPending: false,
-  error: undefined,
-  changesApplied: false,
-  methodName: undefined
-}; */
 
 export class ManageBrowseMethods extends LinkedComponent {
 
@@ -44,13 +38,16 @@ export class ManageBrowseMethods extends LinkedComponent {
       action: '',
       changesApplied: false,
       isPending: false,
-      value: {},
-      error: {}
+      value: undefined,
+      error: undefined,
+      inputArguments: [],
+      metadataCall: {}
     };
 
     this.checkAccessLevel();
     this.actionLink = this.linkTo('action').map(({ value }) => value);
     this.writeValueLink = this.linkTo('writeValue');
+    this.argumentLinks = [];
   }
 
   apply = (event) => {
@@ -62,7 +59,6 @@ export class ManageBrowseMethods extends LinkedComponent {
 
       switch (this.actionLink.value) {
         case 'read':
-          //api.fetchValue(endpoint, data.id);
           this.subscription = OpcTwinService.readNodeValue(endpoint, data.id)
           .subscribe(
             (response) => {
@@ -71,31 +67,50 @@ export class ManageBrowseMethods extends LinkedComponent {
             },
             error => this.setState({ error })
           );
-          this.setState({ isPending:  api.isReadPending()});
         break;
         case 'write':
-          this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, parseInt(this.writeValueLink.value)), null, 2))
+          this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, this.writeValueLink.value), null, 2))
+          //this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, null), null, 2))
           .subscribe(
-            () => {},
+            (response) => {
+              const xx = response;
+              this.setState({ isPending: false });
+            },
             error => this.setState({ error })
           );
         break;
         case 'call':
+          const { metadataCall } = this.state;  
+
+          this.subscription = OpcTwinService.callNodeMethod(endpoint, JSON.stringify(toCallNodeMethodModel(metadataCall, data.id, this.argumentLinks), null, 2))
+          .subscribe(
+            (response) => {
+              this.setState({ value: response.value })
+              this.setState({ isPending: false });
+            },
+            error => this.setState({ error }) 
+          );
         break;
       }
-        this.setState({ changesApplied: true });
+      this.setState({ changesApplied: true });
   }
 
   checkAccessLevel = () => {
     const { data } = this.props;
 
     actionType.length = 0;
-
-    if (data.accessLevel.includes("Read")) {
-      actionType.push('read');
+ 
+    if (data.nodeClass == "Method")
+    {
+      actionType.push('call');
     }
-    if (data.accessLevel.includes("Write")) {
-      actionType.push('write');
+    else {
+      if (data.accessLevel.includes("Read")) {
+        actionType.push('read');
+      }
+      if (data.accessLevel.includes("Write")) {
+        actionType.push('write');
+      }
     }
   }
 
@@ -107,15 +122,47 @@ export class ManageBrowseMethods extends LinkedComponent {
     return this.actionLink.value == "write"; 
   }
 
+  isRead () {
+    return this.actionLink.value == "read"; 
+  }
+
+  isCall () {
+    return this.actionLink.value == "call"; 
+  }
+
+  getCallMetadata () {
+    const { endpoint, data, api } = this.props;
+    const { inputArguments } = this.state;
+
+    let value = false;
+    if ((this.actionLink.value == "call") && !isDef(inputArguments))  {
+      //this.setState({ isPending: true });
+      this.subscription = OpcTwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
+        .subscribe(
+          (response) => {
+            this.setState({ inputArguments: response.inputArguments });
+            this.setState({ metadataCall: response });
+            response.inputArguments.map((_, index) => [
+              this.argumentLinks.push(this.linkTo('argumentvalue'+ index))
+            ]);           
+            this.setState({ isPending: true });
+          },
+          error => this.setState({ error })
+        );
+    }
+  }
+
   render() {
     const { t, onClose, api, data } = this.props;
-    const { isPending, changesApplied, value } = this.state;
+    const { isPending, changesApplied, value, inputArguments, error } = this.state;
 
     const actionOptions = actionType.map((value) => ({
       label: t(`browseFlyout.options.${value}`),
       value
     }));
 
+    this.getCallMetadata()
+ 
     return (
       <Flyout.Container>
         <Flyout.Header>
@@ -138,26 +185,69 @@ export class ManageBrowseMethods extends LinkedComponent {
                       clearable={false}
                       placeholder={'Select'}
                       link={this.actionLink} />
-              </FormGroup>
+                </FormGroup>
 
               { 
                 this.isWrite() &&
                 <FormGroup>
                   <FormLabel>{t('browseFlyout.value')}</FormLabel>
                   <div className="help-message">{t('browseFlyout.writeMessage')}</div>
-                  <FormControl className="long" link={this.writeValueLink} type="text" placeholder={t('browseFlyout.writeMessage')} />
+                  <FormControl className="long" link={this.writeValueLink} type="text" placeholder={data.dataType} />
                 </FormGroup>
+              }
+              {
+               !changesApplied && this.isCall() &&
+                <SummarySection>
+                {inputArguments.length!=0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
+                { 
+                  inputArguments.map(({name, type}, index) => [
+                    <FormGroup>
+                      <FormLabel>{name}</FormLabel>
+                      <div className="help-message">{type.description}</div>
+                      <FormControl className="long" link={this.argumentLinks[index]} type="text" placeholder={type.id} />
+                    </FormGroup>
+                  ])
+                }
+                </SummarySection>
               }
               {
                 changesApplied && 
                 <SummarySection>
-                <SectionHeader>{t('browseFlyout.value')}</SectionHeader>
+                {this.isRead() && <SectionHeader>{t('browseFlyout.value')}</SectionHeader>}
                   <SummaryBody>
-                  
-                    <SectionDesc>
-                      { isPending ? <Indicator /> : null }
-                      { changesApplied && <Json>{ value }</Json> } 
-                    </SectionDesc>
+                    {this.isRead() && 
+                      <SectionDesc>
+                        { 
+                          isPending 
+                            ? <Indicator /> 
+                            : !isDef(error) 
+                              ? <Json>{ value }</Json> 
+                              : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
+                        } 
+                      </SectionDesc>
+                    }
+                    {this.isWrite() &&
+                      <SectionDesc>
+                        { 
+                          isPending 
+                            ? <Indicator /> 
+                            : !isDef(error) 
+                              ? <div>{t('browseFlyout.writeSuccesfully')}</div> 
+                              : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
+                        } 
+                      </SectionDesc>
+                    }
+                    {this.isCall() &&
+                      <SectionDesc>
+                        { 
+                          isPending 
+                            ? <Indicator /> 
+                            : !isDef(error) 
+                              ? <div>{t('browseFlyout.callSuccesfully')}</div> 
+                              : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
+                        } 
+                      </SectionDesc>
+                    }
                   </SummaryBody>
                 </SummarySection>
               }

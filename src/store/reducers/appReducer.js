@@ -60,8 +60,7 @@ export const epics = createEpicScenario({
     epic: fromAction => {
       const { endpointId, nodeId } = fromAction.payload;
       const pendingFlag = pendingNode(endpointId, nodeId);
-      const value = OpcTwinService.browseNode(endpointId, nodeId);
-      return value
+      return OpcTwinService.browseNode(endpointId, nodeId)
         .map(toActionCreatorWithPending(redux.actions.updateRootNode, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
@@ -151,11 +150,10 @@ const updateApplicationWithEndpointReducer = (state, action) => {
 }
 
 const updateRootNodeReducer = (state, action) => {
-  for(var i = 0; i < action.payload.references.length; i++) {
+  action.payload.references.forEach ((_, i) => {
     action.payload.references[i].id = i;
-  }
+  });
 
-  const normalizeData = normalize(action.payload, browseNodeResponse);
   const { entities: { nodes = {}, references }, result } = normalize(action.payload, browseNodeResponse);
   const sourceId = result.node;
   return update(state, {
@@ -179,12 +177,17 @@ const updateRootNodeReducer = (state, action) => {
   });
 }
 
+const updatePathReducer = (state, action) => {
+
+}
+
 export const redux = createReducerScenario({
   updateApplication: { type: 'UPDATE_APPLICATIONS', reducer: updateApplicationsReducer },
   updateApplicationWithEndpoint: { type: 'UPDATE_APPLICATION_WITH_ENDPOINT', reducer: updateApplicationWithEndpointReducer },
   updateRootNode: { type: 'UPDATE_ROOT_NODE', reducer: updateRootNodeReducer },
   startPendingState: { type: 'START_PENDING_STATE', reducer: startPendingStateReducer },
-  registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer }
+  registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer },
+  updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -199,4 +202,5 @@ export const getNodes = state => getEntities(state).nodes;
 export const getReferences = state => getEntities(state).references;
 export const getPendingStates = state => getAppReducer(state).pendingStates;
 export const getErrors = state => getAppReducer(state).errors;
+export const getPath = state => getAppReducer(state).path;
 // ========================= Selectors - END

@@ -10,14 +10,6 @@ import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 
 import './start.css';
 import './react-contextmenu.css';
-import PageContent from '../app/pageContent';
-
-
-const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
-
-// TODO: Move to seperate file
-// TODO: Create a node rendering presentational component
-
 
 class NodeApi {
   constructor(componentRef) {
@@ -73,13 +65,15 @@ class DataNode extends Component {
   toggle = () => {
     const { data, api, endpoint } = this.props;
 
-    if (data.children){
+    if (data.nodeClass == "Method") {
+      this.openBrowseFlyout();
+    }
+    else if (data.children){
       // TODO: Prevent calling again if pending state is active
       if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
       this.setState({ expanded: !this.state.expanded });
     }
     else {
-      console.log("name:",data.displayName);
       this.openBrowseFlyout();
     }
   }
@@ -101,6 +95,10 @@ class DataNode extends Component {
         </div>
         <div className="node-details">
           { data.description }
+          <div>
+            {"node type: " }
+            {data.nodeClass}
+          </div>
         </div>
         {
           error ? <ErrorMsg>{ error.errorMessage }</ErrorMsg> : null
@@ -175,7 +173,7 @@ class ApplicationNode extends Component {
   }
 
   toggle = () => {
-    //console.log("props", this.props);
+
     const { data, api } = this.props;
     // TODO: Prevent calling again if pending state is active
     if (!isDef(data.endpoints)) api.fetchEndpoints(data.applicationId);
@@ -188,8 +186,11 @@ class ApplicationNode extends Component {
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name" onClick={this.toggle}>
-          {data.applicationUri} <Expander expanded={this.state.expanded} />
+          {data.applicationName} <Expander expanded={this.state.expanded} />
           { api.isEndpointsPending(data.applicationId) ? <Indicator /> : null }
+          <div className="node-details">
+            {data.applicationUri}
+          </div>
         </div>
         {
           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
@@ -225,13 +226,12 @@ export class Start extends Component {
 
   render() {
     const { applications, errors } = this.props;
-
+    
     return (
       <div className="start-container">
+        
         { this.nodeApi.isApplicationsPending() && <Indicator /> }
         <ApplicationNodeList data={applications} api={this.nodeApi} />
-        <h3>Errors</h3>
-        <Json>{ errors }</Json>
       </div>
     );
   }

@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { camelCaseReshape, reshape, getItems, stringToBoolean } from 'utilities';
-
 export const toReadValueModel = (response = {}) => ({
     value: response.value
 });
@@ -12,3 +10,22 @@ export const toWriteValueModel = (params = {}, value) => ({
     dataType: params.dataType
 });
 
+export const toCallNodeMethodMetadataModel = (params = {}) => ({
+    methodId: params.id
+});
+
+export const toCallNodeMethodModel = (params = {}, nodeId, values) => {
+    const argument = [];
+    (values || []).forEach ((val, i) => {
+        argument.push({
+            dataType: params.inputArguments[i].type.id,
+            value: val.value
+        })
+    });
+    const request = {
+        methodId: nodeId,
+        objectId: params.objectId,
+        arguments: argument
+    }
+    return request;
+};

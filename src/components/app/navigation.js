@@ -43,7 +43,7 @@ class Navigation extends Component {
     super(props);
 
     this.state = {
-      collapsed: false,
+      collapsed: true,
       lastWidth: window.innerWidth
     };
 
