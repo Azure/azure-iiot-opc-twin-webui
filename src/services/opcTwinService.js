@@ -18,18 +18,18 @@ export class OpcTwinService {
    * Returns a list of devicemodels
    */
   static getApplicationsList() {
-    const value = HttpClient.get(`${ENDPOINT_REGISTRY}/v1/Applications`, undefined, false)
+    const value = HttpClient.get(`${ENDPOINT_REGISTRY}/v1/applications`, undefined, false)
       .map(getItems);
     return value;
   }
 
   static getApplication(id) {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/Applications/${id}`, undefined, false);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/applications/${id}`, undefined, false);
   }
 
   static browseNode(endpointId, nodeId) {
     const queryString = nodeId ? `?nodeId=${encodeURIComponent(nodeId)}` : '';
-    return HttpClient.get(`${ENDPOINT_TWINS}/v1/Browse/${endpointId}${queryString}`, undefined, false)
+    return HttpClient.get(`${ENDPOINT_TWINS}/v1/browse/${endpointId}${queryString}`, undefined, false)
       .map(({ node, references }) => ({
         node,
         references
@@ -38,31 +38,31 @@ export class OpcTwinService {
 
   static readNodeValue(endpointId, nodeId) {
     const queryString = nodeId ? `?nodeId=${encodeURIComponent(nodeId)}` : '';
-    return HttpClient.get(`${ENDPOINT_TWINS}/v1/Read/${endpointId}${queryString}`, undefined, false)
+    return HttpClient.get(`${ENDPOINT_TWINS}/v1/read/${endpointId}${queryString}`, undefined, false)
       .map(toReadValueModel);
   }
 
   static writeNodeValue(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_TWINS}/v1/Write/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/write/${endpointId}`, payload);
   }
 
   static callNodeMethodMetadata(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_TWINS}/v1/Call/${endpointId}/$metadata`, payload);
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/call/${endpointId}/$metadata`, payload);
   }
 
   static callNodeMethod(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_TWINS}/v1/Call/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/call/${endpointId}`, payload);
   }
 
   static getTwins() {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}Twins`, undefined, false);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/twins`, undefined, false);
   }
 
   static activateTwin(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/activate/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/twins/activate/${endpointId}`, payload);
   }
 
   static deactivateTwin(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/deactivate/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/twins/deactivate/${endpointId}`, payload);
   }
 }
