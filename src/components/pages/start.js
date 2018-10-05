@@ -1,15 +1,29 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from 'react';
-import { ErrorMsg, Indicator } from '../shared';
-import { isDef } from 'utilities';
+import { ErrorMsg, 
+  Indicator, 
+  ContextMenu, 
+  PageContent, 
+  Radio,
+  SearchInput, 
+  Btn } from 'components/shared';
+import { isDef, LinkedComponent } from 'utilities';
+//import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/app/deviceGroupDropdown';
 
-import { pendingApplications, pendingEndpoints, pendingNode, pendingRead } from 'store/reducers/appReducer';
-import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu/modules";
+import { 
+  pendingApplications, 
+  pendingEndpoints, 
+  pendingNode, 
+  pendingRead,
+  pendingTwins } from 'store/reducers/appReducer';
+//import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu/modules";
+
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
+import { OpcTwinService } from 'services';
 
 import './start.css';
-import './react-contextmenu.css';
+//import './react-contextmenu.css';
 
 class NodeApi {
   constructor(componentRef) {
@@ -39,6 +53,7 @@ class NodeApi {
   // Action creator wrappers
   fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
   fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
+  fetchTwins = () => this.componentRef.props.fetchTwins();
 }
 
 const Expander = ({ expanded }) => <span>[{ expanded ? '-' : '+'}]</span>
@@ -54,18 +69,14 @@ class DataNode extends Component {
     };
   }
 
-  closeFlyout = () => {
-    const { api } = this.props;
+  closeFlyout = () => {this.setState(closedFlyoutState);}
 
-    this.setState(closedFlyoutState);
-  
-  }
   openBrowseFlyout = () => this.setState({ openFlyoutName: 'Browse' });
 
   toggle = () => {
     const { data, api, endpoint } = this.props;
 
-    if (data.nodeClass == "Method") {
+    if (data.nodeClass === "Method") {
       this.openBrowseFlyout();
     }
     else if (data.children){
@@ -121,7 +132,11 @@ class EndpointNode extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { expanded: false };
+    this.state = { 
+      expanded: false,
+      error: undefined,
+      isPending: false
+     };
   }
 
   toggle = () => {
@@ -131,13 +146,53 @@ class EndpointNode extends Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
-  render() {
+  radioChange = (event) => {
     const { data, api } = this.props;
+    event.preventDefault();
+    this.setState({ isPending: true });
+
+    if (event.target.value != "true") {
+      this.subscription = OpcTwinService.activateTwin(data.id)
+      .subscribe(
+        () => {
+          this.setState({ isPending: false });
+          api.fetchTwins();
+        },
+        error => this.setState({ error })
+      );
+    }
+    else {
+      this.subscription = OpcTwinService.deactivateTwin(data.id)
+      .subscribe(
+        () => {
+          this.setState({ isPending: false });
+          api.fetchTwins();
+        },
+        error => this.setState({ error })
+      );
+    }  
+  }
+
+  isActive () {
+    const { data, twinData } = this.props;
+    return twinData.filter(item => item.endpointId === data.id).
+    map(item => item.activated)[0];
+  }
+
+  render() {
+    const { data, api, twinData } = this.props;
+    const { isPending } = this.state;
     const [_, policy] = data.endpoint.securityPolicy.split('#');
     const rootNode = api.getNode(data.id, api.getReferences(data.id));
     const error = api.isNodeError(data.id);
+
     return (
       <div className="hierarchy-level">
+        {
+          <Radio  checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
+           <div className="text-radio-button"> {'active'}  {isPending ? <Indicator size="small" /> : null} </div>
+          </Radio>  
+        }
         <div className="hierarchy-name" onClick={this.toggle}>
           {data.endpoint.url} <Expander expanded={this.state.expanded} />
           { api.isNodePending(data.id) ? <Indicator /> : null }
@@ -161,8 +216,8 @@ class EndpointNode extends Component {
   }
 }
 
-const EndpointNodeList = ({ data, api }) => data.map(endpointId =>
-  <EndpointNode data={api.getEndpoint(endpointId)} api={api} key={endpointId} />
+const EndpointNodeList = ({ data, api, twinData }) => data.map(endpointId =>
+  <EndpointNode data={api.getEndpoint(endpointId)} api={api} key={endpointId} twinData={twinData}/>
 );
 
 class ApplicationNode extends Component {
@@ -171,6 +226,7 @@ class ApplicationNode extends Component {
     super(props);
     this.state = { expanded: false };
   }
+
 
   toggle = () => {
 
@@ -181,8 +237,9 @@ class ApplicationNode extends Component {
   }
 
   render() {
-    const { data, api } = this.props;
+    const { data, api, twinData } = this.props;
     const error = api.isEndpointsError(data.applicationId);
+
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name" onClick={this.toggle}>
@@ -197,7 +254,7 @@ class ApplicationNode extends Component {
         }
         {
           this.state.expanded && data.endpoints && data.endpoints.length
-            ? <EndpointNodeList data={data.endpoints} api={api} />
+            ? <EndpointNodeList data={data.endpoints} api={api} twinData={twinData} />
             : null
         }
       </div>
@@ -205,34 +262,42 @@ class ApplicationNode extends Component {
   }
 }
 
-const ApplicationNodeList = ({ data, api }) => data.map((app, idx) => (
+const ApplicationNodeList = ({ data, api, twinData }) => data.map((app, idx) => (
   <ApplicationNode
     data={app}
     api={api}
+    twinData={twinData}
     key={app.applicationId} />
 ));
 
-export class Start extends Component {
+
+export class Start extends LinkedComponent {
   constructor(props) {
     super(props);
 
     this.nodeApi = new NodeApi(this);
-  }
+  };
 
   componentDidMount () {
     this.props.fetchApplications();
+    this.props.fetchTwins();
     console.log("props", this.props);
   }
 
   render() {
-    const { applications, errors } = this.props;
-    
-    return (
-      <div className="start-container">
+    const { applications, twins, errors } = this.props;
+    this.dataLink = this.linkTo('value');
+
+    return [
+      <ContextMenu key="context-menu">
         
+        {/* <Btn svg={svgs.plus} onClick={this.openNewDeviceFlyout}>{'test'}</Btn>
+        <SearchInput onChange={this.searchOnChange} placeholder={'devices.searchPlaceholder'} /> */}
+      </ContextMenu>,
+      <PageContent className="start-container" key="page-content">
         { this.nodeApi.isApplicationsPending() && <Indicator /> }
-        <ApplicationNodeList data={applications} api={this.nodeApi} />
-      </div>
-    );
+        <ApplicationNodeList data={applications} twinData={twins} api={this.nodeApi} />
+      </PageContent>
+    ];
   }
 }

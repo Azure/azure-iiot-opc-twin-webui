@@ -17,6 +17,7 @@ export const pendingApplications = () => 'FETCHING_APPLICATIONS';
 export const pendingEndpoints = (appId) => `FETCHING_ENDPOINTS_${appId}`;
 export const pendingNode = (endpointId, nodeId = 'ROOT') => `FETCHING_NODE_${endpointId}_${nodeId}`;
 export const pendingRead = () => `FETCHING_READ_DATA`;
+export const pendingTwins = () => 'FETCHING_TWINS';
 // ========================= Pending State Flag Generators - START
 
 export const toActionCreatorWithPending = (actionCreator, fromAction, pendingFlag) =>
@@ -33,7 +34,6 @@ export const epics = createEpicScenario({
   fetchApplications: {
     type: 'FETCH_APPLICATIONS',
     epic: fromAction => {
-      console.log("fromaction", fromAction);
       const pendingFlag = pendingApplications();
       return OpcTwinService.getApplicationsList()
         .map(toActionCreatorWithPending(redux.actions.updateApplication, fromAction, pendingFlag))
@@ -65,7 +65,17 @@ export const epics = createEpicScenario({
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
     }
-  }
+  },
+  fetchTwins: {
+    type: 'FETCH_TWINS',
+    epic: fromAction => {
+      const pendingFlag = pendingTwins();
+      return OpcTwinService.getTwins()
+        .map(toActionCreatorWithPending(redux.actions.updateTwins, fromAction, pendingFlag))
+        .startWith(redux.actions.startPendingState(pendingFlag))
+        .catch(handleError(pendingFlag, fromAction));
+    }
+  },
 });
 
 // ========================= Epics - END
@@ -84,7 +94,6 @@ const browseNodeResponse = new schema.Object({
   node: nodeEntity,
   references: referenceListSchema
 });
-
 // ========================= Schemas - END
 
 // ========================= Reducers - START
@@ -93,7 +102,8 @@ const initialState = {
     applications: {},
     endpoints: {},
     nodes: {},
-    references: {}
+    references: {},
+    twins: {}
   },
   pendingStates: {},
   errors: {},
@@ -177,8 +187,19 @@ const updateRootNodeReducer = (state, action) => {
   });
 }
 
-const updatePathReducer = (state, action) => {
+const mappingFunction = (item) => {
+  item.registration.id;
+}
 
+const updateTwinsReducer = (state, action) => { 
+  const flatTwin = action.payload.items.map((item) => {return {id: item.applicationId, endpointId: item.registration.id, activated: item.activated}});
+ 
+  return update(state, {
+    entities: {
+      twins: { $set: flatTwin },
+    },
+    ...unsetPendingFlag(action.pendingFlag)
+  });
 }
 
 export const redux = createReducerScenario({
@@ -187,7 +208,7 @@ export const redux = createReducerScenario({
   updateRootNode: { type: 'UPDATE_ROOT_NODE', reducer: updateRootNodeReducer },
   startPendingState: { type: 'START_PENDING_STATE', reducer: startPendingStateReducer },
   registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer },
-  updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer }
+  updateTwins: { type: 'UPDATE_TWINS', reducer: updateTwinsReducer }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -202,5 +223,5 @@ export const getNodes = state => getEntities(state).nodes;
 export const getReferences = state => getEntities(state).references;
 export const getPendingStates = state => getAppReducer(state).pendingStates;
 export const getErrors = state => getAppReducer(state).errors;
-export const getPath = state => getAppReducer(state).path;
+export const getTwins = state => Object.values(getEntities(state).twins)
 // ========================= Selectors - END

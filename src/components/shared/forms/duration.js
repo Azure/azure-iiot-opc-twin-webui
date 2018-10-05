@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { Svg } from 'components/shared/svg/svg';
+import { Svg } from '../svg/svg';
 import { FormLabel } from './formLabel';
 import { FormGroup } from './formGroup';
 import { FormControl } from './formControl';

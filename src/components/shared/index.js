@@ -6,3 +6,5 @@ export * from './indicator/indicator';
 export * from './forms';
 export * from './flyout';
 export * from './svg/svg';
+export * from './contextMenu';
+export * from './pageContent/pageContent';

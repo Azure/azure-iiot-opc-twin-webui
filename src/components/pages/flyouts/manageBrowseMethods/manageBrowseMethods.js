@@ -73,7 +73,6 @@ export class ManageBrowseMethods extends LinkedComponent {
           //this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, null), null, 2))
           .subscribe(
             (response) => {
-              const xx = response;
               this.setState({ isPending: false });
             },
             error => this.setState({ error })
@@ -91,6 +90,8 @@ export class ManageBrowseMethods extends LinkedComponent {
             error => this.setState({ error }) 
           );
         break;
+        default:
+        break;
       }
       this.setState({ changesApplied: true });
   }
@@ -100,7 +101,7 @@ export class ManageBrowseMethods extends LinkedComponent {
 
     actionType.length = 0;
  
-    if (data.nodeClass == "Method")
+    if (data.nodeClass === "Method")
     {
       actionType.push('call');
     }
@@ -115,19 +116,19 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   selectionisValid() {
-    return this.actionLink.value != ""; 
+    return this.actionLink.value !== ""; 
   }
 
   isWrite () {
-    return this.actionLink.value == "write"; 
+    return this.actionLink.value === "write"; 
   }
 
   isRead () {
-    return this.actionLink.value == "read"; 
+    return this.actionLink.value === "read"; 
   }
 
   isCall () {
-    return this.actionLink.value == "call"; 
+    return this.actionLink.value === "call"; 
   }
 
   getCallMetadata () {
@@ -135,7 +136,7 @@ export class ManageBrowseMethods extends LinkedComponent {
     const { inputArguments } = this.state;
 
     let value = false;
-    if ((this.actionLink.value == "call") && !isDef(inputArguments))  {
+    if ((this.actionLink.value === "call") && !isDef(inputArguments))  {
       //this.setState({ isPending: true });
       this.subscription = OpcTwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
         .subscribe(

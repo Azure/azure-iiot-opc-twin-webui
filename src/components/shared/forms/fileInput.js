@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { Btn } from 'components/shared';
+import { Btn } from '..';
 import { joinClasses, svgs } from 'utilities';
 
 import './styles/fileInput.css';

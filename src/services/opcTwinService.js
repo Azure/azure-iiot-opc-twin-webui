@@ -52,4 +52,16 @@ export class OpcTwinService {
   static callNodeMethod(endpointId, payload) {
     return HttpClient.post(`${ENDPOINT_OPC_TWIN}Call/${endpointId}`, payload);
   }
+
+  static getTwins() {
+    return HttpClient.get(`${ENDPOINT_REGISTRY}Twins`, undefined, false);
+  }
+
+  static activateTwin(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/${endpointId}/activate`, payload);
+  }
+
+  static deactivateTwin(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/${endpointId}/deactivate`, payload);
+  }
 }
