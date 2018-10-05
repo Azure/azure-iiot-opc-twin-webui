@@ -57,11 +57,11 @@ export class OpcTwinService {
   }
 
   static activateTwin(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/${endpointId}/activate`, payload);
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/activate/${endpointId}`, payload);
   }
 
   static deactivateTwin(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/${endpointId}/deactivate`, payload);
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/deactivate/${endpointId}`, payload);
   }
 
   static scanServers(payload) {
