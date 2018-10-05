@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import React, { Component } from 'react';
+import React from 'react';
 import { LinkedComponent, svgs, isDef } from 'utilities';
 import { OpcTwinService } from 'services';
 import { Indicator } from '../../../shared';
@@ -55,7 +55,7 @@ export class ManageBrowseMethods extends LinkedComponent {
   
       this.setState({ isPending: true });
 
-      const { endpoint, data, api } = this.props;
+      const { endpoint, data } = this.props;
 
       switch (this.actionLink.value) {
         case 'read':
@@ -73,7 +73,6 @@ export class ManageBrowseMethods extends LinkedComponent {
           //this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, null), null, 2))
           .subscribe(
             (response) => {
-              const xx = response;
               this.setState({ isPending: false });
             },
             error => this.setState({ error })
@@ -91,6 +90,8 @@ export class ManageBrowseMethods extends LinkedComponent {
             error => this.setState({ error }) 
           );
         break;
+        default:
+        break;
       }
       this.setState({ changesApplied: true });
   }
@@ -100,7 +101,7 @@ export class ManageBrowseMethods extends LinkedComponent {
 
     actionType.length = 0;
  
-    if (data.nodeClass == "Method")
+    if (data.nodeClass === "Method")
     {
       actionType.push('call');
     }
@@ -115,27 +116,26 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   selectionisValid() {
-    return this.actionLink.value != ""; 
+    return this.actionLink.value !== ""; 
   }
 
   isWrite () {
-    return this.actionLink.value == "write"; 
+    return this.actionLink.value === "write"; 
   }
 
   isRead () {
-    return this.actionLink.value == "read"; 
+    return this.actionLink.value === "read"; 
   }
 
   isCall () {
-    return this.actionLink.value == "call"; 
+    return this.actionLink.value === "call"; 
   }
 
   getCallMetadata () {
-    const { endpoint, data, api } = this.props;
+    const { endpoint, data } = this.props;
     const { inputArguments } = this.state;
 
-    let value = false;
-    if ((this.actionLink.value == "call") && !isDef(inputArguments))  {
+    if ((this.actionLink.value === "call") && !isDef(inputArguments))  {
       //this.setState({ isPending: true });
       this.subscription = OpcTwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
         .subscribe(
@@ -153,7 +153,7 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   render() {
-    const { t, onClose, api, data } = this.props;
+    const { t, onClose, data } = this.props;
     const { isPending, changesApplied, value, inputArguments, error } = this.state;
 
     const actionOptions = actionType.map((value) => ({
@@ -198,7 +198,7 @@ export class ManageBrowseMethods extends LinkedComponent {
               {
                !changesApplied && this.isCall() &&
                 <SummarySection>
-                {inputArguments.length!=0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
+                {inputArguments.length !==0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
                 { 
                   inputArguments.map(({name, type}, index) => [
                     <FormGroup>

@@ -20,6 +20,8 @@
     "value": "Value:",
     "writeMessage": "Enter value to write",
     "errorMessage": "Operation failed: ",
+    "writeSuccesfully": "Variable written succesfully",
+    "callSuccesfully": "Method executed succesfully",
     "options": {
       "read": "Read",
       "write": "Write",

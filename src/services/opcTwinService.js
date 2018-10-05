@@ -2,7 +2,6 @@
 
 import Config from 'app.config';
 
-import { Observable } from 'rxjs';
 import { HttpClient } from './httpClient';
 import { getItems } from 'utilities';
 import { toReadValueModel } from './models';
@@ -53,5 +52,17 @@ export class OpcTwinService {
 
   static callNodeMethod(endpointId, payload) {
     return HttpClient.post(`${ENDPOINT_TWINS}/v1/Call/${endpointId}`, payload);
+  }
+
+  static getTwins() {
+    return HttpClient.get(`${ENDPOINT_REGISTRY}Twins`, undefined, false);
+  }
+
+  static activateTwin(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/activate/${endpointId}`, payload);
+  }
+
+  static deactivateTwin(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_REGISTRY}Twins/deactivate/${endpointId}`, payload);
   }
 }

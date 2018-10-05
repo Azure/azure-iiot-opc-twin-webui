@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Svg } from 'components/shared/svg/svg';
+import { Svg } from '../svg/svg';
 import { joinClasses, svgs } from 'utilities';
 
 import './styles/errorMsg.css';

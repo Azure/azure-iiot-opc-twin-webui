@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import configureStore from 'store/configureStore';
-import AppContainer from 'components/app/app.container';
+import AppContainer from 'components/app/appcontainer';
 import registerServiceWorker from 'registerServiceWorker';
 import { AuthService } from 'services';
 
