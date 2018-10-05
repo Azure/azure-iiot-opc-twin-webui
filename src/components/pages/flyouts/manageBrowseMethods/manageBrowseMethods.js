@@ -70,7 +70,6 @@ export class ManageBrowseMethods extends LinkedComponent {
         break;
         case 'write':
           this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, this.writeValueLink.value), null, 2))
-          //this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, null), null, 2))
           .subscribe(
             (response) => {
               this.setState({ isPending: false });

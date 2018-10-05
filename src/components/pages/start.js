@@ -5,7 +5,8 @@ import { ErrorMsg,
   Indicator, 
   ContextMenu, 
   PageContent, 
-  Radio} from 'components/shared';
+  Radio,
+  Btn} from 'components/shared';
 import { isDef, LinkedComponent } from 'utilities';
 
 import { 
@@ -16,7 +17,7 @@ import {
 
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
-
+import { toScanModel } from 'services/models';
 import './start.css';
 
 class NodeApi {
@@ -269,6 +270,8 @@ export class Start extends LinkedComponent {
   constructor(props) {
     super(props);
 
+    this.state = { error: undefined };
+
     this.nodeApi = new NodeApi(this);
   };
 
@@ -278,15 +281,21 @@ export class Start extends LinkedComponent {
     console.log("props", this.props);
   }
 
+  startScan = () => {
+    this.subscription = OpcTwinService.scanServers(JSON.stringify(toScanModel("Fast"), null, 2))
+      .subscribe(
+        () => {},
+        error => this.setState({ error })
+      );
+  }
+
   render() {
     const { applications, twins, errors } = this.props;
     this.dataLink = this.linkTo('value');
 
     return [
       <ContextMenu key="context-menu">
-        
-        {/* <Btn svg={svgs.plus} onClick={this.openNewDeviceFlyout}>{'test'}</Btn>
-        <SearchInput onChange={this.searchOnChange} placeholder={'devices.searchPlaceholder'} /> */}
+        <Btn className="btn-scan" onClick={this.startScan}>{'Scan'}</Btn>
       </ContextMenu>,
       <PageContent className="start-container" key="page-content">
         { this.nodeApi.isApplicationsPending() && <Indicator /> }

@@ -36,5 +36,9 @@ $borderColor: $bgColorHover; //#005e8c;
       padding-bottom: 8px;
       @include rem-font-size(14px);
     }
+
+    .btn-scan:focus { 
+      outline: none; 
+    }
   }
 }
