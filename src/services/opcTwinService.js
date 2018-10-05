@@ -67,4 +67,8 @@ export class OpcTwinService {
   static scanServers(payload) {
     return HttpClient.post(`${ENDPOINT_REGISTRY}Applications/discover`, payload);
   }
+
+  static deleteApplication(applicationId) {
+    return HttpClient.delete(`${ENDPOINT_REGISTRY}applications/${applicationId}`);
+  }
 }
