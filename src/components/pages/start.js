@@ -5,25 +5,19 @@ import { ErrorMsg,
   Indicator, 
   ContextMenu, 
   PageContent, 
-  Radio,
-  SearchInput, 
-  Btn } from 'components/shared';
+  Radio} from 'components/shared';
 import { isDef, LinkedComponent } from 'utilities';
-//import { DeviceGroupDropdownContainer as DeviceGroupDropdown } from 'components/app/deviceGroupDropdown';
 
 import { 
   pendingApplications, 
   pendingEndpoints, 
   pendingNode, 
-  pendingRead,
-  pendingTwins } from 'store/reducers/appReducer';
-//import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu/modules";
+  pendingRead} from 'store/reducers/appReducer';
 
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
 
 import './start.css';
-//import './react-contextmenu.css';
 
 class NodeApi {
   constructor(componentRef) {
@@ -151,7 +145,7 @@ class EndpointNode extends Component {
     event.preventDefault();
     this.setState({ isPending: true });
 
-    if (event.target.value != "true") {
+    if (event.target.value !== "true") {
       this.subscription = OpcTwinService.activateTwin(data.id)
       .subscribe(
         () => {
@@ -175,12 +169,12 @@ class EndpointNode extends Component {
 
   isActive () {
     const { data, twinData } = this.props;
-    return twinData.filter(item => item.endpointId === data.id).
-    map(item => item.activated)[0];
+    return twinData.filter(item => item.endpointId === data.id)
+      .map(item => item.activated)[0];
   }
 
   render() {
-    const { data, api, twinData } = this.props;
+    const { data, api } = this.props;
     const { isPending } = this.state;
     const [_, policy] = data.endpoint.securityPolicy.split('#');
     const rootNode = api.getNode(data.id, api.getReferences(data.id));

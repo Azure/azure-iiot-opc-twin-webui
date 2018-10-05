@@ -187,10 +187,6 @@ const updateRootNodeReducer = (state, action) => {
   });
 }
 
-const mappingFunction = (item) => {
-  item.registration.id;
-}
-
 const updateTwinsReducer = (state, action) => { 
   const flatTwin = action.payload.items.map((item) => {return {id: item.applicationId, endpointId: item.registration.id, activated: item.activated}});
  

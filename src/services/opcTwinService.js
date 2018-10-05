@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { Observable } from 'rxjs';
 import { HttpClient } from './httpClient';
 import { getItems } from 'utilities';
 import { toReadValueModel } from './models';

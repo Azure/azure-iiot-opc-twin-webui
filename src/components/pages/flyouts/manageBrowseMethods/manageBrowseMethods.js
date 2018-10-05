@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import React, { Component } from 'react';
+import React from 'react';
 import { LinkedComponent, svgs, isDef } from 'utilities';
 import { OpcTwinService } from 'services';
 import { Indicator } from '../../../shared';
@@ -55,7 +55,7 @@ export class ManageBrowseMethods extends LinkedComponent {
   
       this.setState({ isPending: true });
 
-      const { endpoint, data, api } = this.props;
+      const { endpoint, data } = this.props;
 
       switch (this.actionLink.value) {
         case 'read':
@@ -132,10 +132,9 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   getCallMetadata () {
-    const { endpoint, data, api } = this.props;
+    const { endpoint, data } = this.props;
     const { inputArguments } = this.state;
 
-    let value = false;
     if ((this.actionLink.value === "call") && !isDef(inputArguments))  {
       //this.setState({ isPending: true });
       this.subscription = OpcTwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
@@ -154,7 +153,7 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   render() {
-    const { t, onClose, api, data } = this.props;
+    const { t, onClose, data } = this.props;
     const { isPending, changesApplied, value, inputArguments, error } = this.state;
 
     const actionOptions = actionType.map((value) => ({
@@ -199,7 +198,7 @@ export class ManageBrowseMethods extends LinkedComponent {
               {
                !changesApplied && this.isCall() &&
                 <SummarySection>
-                {inputArguments.length!=0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
+                {inputArguments.length !==0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
                 { 
                   inputArguments.map(({name, type}, index) => [
                     <FormGroup>
