@@ -5,7 +5,9 @@ import { ErrorMsg,
   Indicator, 
   ContextMenu, 
   PageContent, 
-  Radio} from 'components/shared';
+  Radio,
+  Btn,
+  RefreshBar} from 'components/shared';
 import { isDef, LinkedComponent } from 'utilities';
 
 import { 
@@ -16,7 +18,7 @@ import {
 
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
-
+import { toScanModel } from 'services/models';
 import './start.css';
 
 class NodeApi {
@@ -50,7 +52,7 @@ class NodeApi {
   fetchTwins = () => this.componentRef.props.fetchTwins();
 }
 
-const Expander = ({ expanded }) => <span>[{ expanded ? '-' : '+'}]</span>
+const Expander = ({ expanded, toggle }) => <span onClick={toggle}>[{ expanded ? '-' : '+'}]</span>
 const closedFlyoutState = { openFlyoutName: undefined };
 
 class DataNode extends Component {
@@ -93,9 +95,9 @@ class DataNode extends Component {
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name" onClick={this.toggle}>
+        <div className="hierarchy-name">
           { data.displayName }
-          { data.children ? <Expander expanded={this.state.expanded} /> : null }
+          { data.children ? <Expander expanded={this.state.expanded} toggle={this.toggle} /> : null }
           { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -187,8 +189,8 @@ class EndpointNode extends Component {
            <div className="text-radio-button"> {'active'}  {isPending ? <Indicator size="small" /> : null} </div>
           </Radio>  
         }
-        <div className="hierarchy-name" onClick={this.toggle}>
-          {data.endpoint.url} <Expander expanded={this.state.expanded} />
+        <div className="hierarchy-name" >
+          {data.endpoint.url} <Expander expanded={this.state.expanded} toggle={this.toggle} />
           { api.isNodePending(data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -219,6 +221,7 @@ class ApplicationNode extends Component {
   constructor(props) {
     super(props);
     this.state = { expanded: false };
+    this.state = { error: undefined };
   }
 
 
@@ -230,18 +233,27 @@ class ApplicationNode extends Component {
     this.setState({ expanded: !this.state.expanded });
   }
 
+  deleteApplication = (applicationId) => {
+    this.subscription = OpcTwinService.deleteApplication(applicationId)
+      .subscribe(
+        () => {},
+        error => this.setState({ error })
+      );
+  }
+
   render() {
     const { data, api, twinData } = this.props;
     const error = api.isEndpointsError(data.applicationId);
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name" onClick={this.toggle}>
-          {data.applicationName} <Expander expanded={this.state.expanded} />
+        <div className="hierarchy-name" >
+          {data.applicationName} <Expander expanded={this.state.expanded} toggle={this.toggle}/>
           { api.isEndpointsPending(data.applicationId) ? <Indicator /> : null }
           <div className="node-details">
             {data.applicationUri}
-          </div>
+            <Btn className="btn-delete" value={data.applicationId} onClick={() => this.deleteApplication(data.applicationId)}>{'Delete'}</Btn>
+          </div> 
         </div>
         {
           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
@@ -264,10 +276,11 @@ const ApplicationNodeList = ({ data, api, twinData }) => data.map((app, idx) => 
     key={app.applicationId} />
 ));
 
-
 export class Start extends LinkedComponent {
   constructor(props) {
     super(props);
+
+    this.state = { error: undefined };
 
     this.nodeApi = new NodeApi(this);
   };
@@ -278,15 +291,27 @@ export class Start extends LinkedComponent {
     console.log("props", this.props);
   }
 
+  refreshApplications = () => {
+    this.props.fetchApplications();
+    this.props.fetchTwins();
+  }
+
+  startScan = () => {
+    this.subscription = OpcTwinService.scanServers(JSON.stringify(toScanModel("Fast"), null, 2))
+      .subscribe(
+        () => {},
+        error => this.setState({ error })
+      );
+  }
+
   render() {
     const { applications, twins, errors } = this.props;
     this.dataLink = this.linkTo('value');
 
     return [
       <ContextMenu key="context-menu">
-        
-        {/* <Btn svg={svgs.plus} onClick={this.openNewDeviceFlyout}>{'test'}</Btn>
-        <SearchInput onChange={this.searchOnChange} placeholder={'devices.searchPlaceholder'} /> */}
+        <Btn className="btn-scan" onClick={this.startScan}>{'Scan'}</Btn>
+        <RefreshBar  refresh={this.refreshApplications}/> 
       </ContextMenu>,
       <PageContent className="start-container" key="page-content">
         { this.nodeApi.isApplicationsPending() && <Indicator /> }

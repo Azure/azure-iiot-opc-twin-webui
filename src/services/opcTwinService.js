@@ -65,4 +65,12 @@ export class OpcTwinService {
   static deactivateTwin(endpointId, payload) {
     return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/twins/deactivate/${endpointId}`, payload);
   }
+
+  static scanServers(payload) {
+    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/applications/discover`, payload);
+  }
+
+  static deleteApplication(applicationId) {
+    return HttpClient.delete(`${ENDPOINT_REGISTRY}/v1/applications/${applicationId}`);
+  }
 }

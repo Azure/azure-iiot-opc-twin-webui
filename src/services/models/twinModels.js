@@ -29,3 +29,7 @@ export const toCallNodeMethodModel = (params = {}, nodeId, values) => {
     }
     return request;
 };
+
+export const toScanModel = (mode) => ({
+    discovery: mode
+});

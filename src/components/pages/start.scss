@@ -29,12 +29,24 @@ $borderColor: $bgColorHover; //#005e8c;
 
     .node-details {
       padding-left: 5px;
+      //display: inline-block;
       @include rem-font-size(14px);
     }
 
     .text-radio-button {
       padding-bottom: 8px;
       @include rem-font-size(14px);
+    }
+
+    .btn-scan:focus { 
+      outline: none; 
+    }
+
+    .btn-delete { 
+      position: fixed;
+      right: 50px;
+
+      display: inline-block; 
     }
   }
 }
