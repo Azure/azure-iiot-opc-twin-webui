@@ -52,7 +52,7 @@ class NodeApi {
   fetchTwins = () => this.componentRef.props.fetchTwins();
 }
 
-const Expander = ({ expanded, toggle }) => <span onClick={toggle}>[{ expanded ? '-' : '+'}]</span>
+const Expander = ({ expanded }) => <span>[{ expanded ? '-' : '+'}]</span>
 const closedFlyoutState = { openFlyoutName: undefined };
 
 class DataNode extends Component {
@@ -95,9 +95,9 @@ class DataNode extends Component {
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name">
+        <div className="hierarchy-name" onClick={this.toggle}>
           { data.displayName }
-          { data.children ? <Expander expanded={this.state.expanded} toggle={this.toggle} /> : null }
+          { data.children ? <Expander expanded={this.state.expanded} /> : null }
           { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -190,8 +190,8 @@ class EndpointNode extends Component {
             <div className="text-radio-button"> {'active'}  {isPending ? <Indicator size="small" /> : null} </div>
            </Radio>
         }
-        <div className="hierarchy-name" >
-          {data.endpoint.url} <Expander expanded={this.state.expanded} toggle={this.toggle} />
+        <div className="hierarchy-name" onClick={this.toggle}>
+          {data.endpoint.url} <Expander expanded={this.state.expanded} />
           { api.isNodePending(data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -248,8 +248,8 @@ class ApplicationNode extends Component {
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name" >
-          {data.applicationName} <Expander expanded={this.state.expanded} toggle={this.toggle}/>
+        <div className="hierarchy-name" onClick={this.toggle}>
+          {data.applicationName} <Expander expanded={this.state.expanded} />
           { api.isEndpointsPending(data.applicationId) ? <Indicator /> : null }
           <div className="node-details">
             {data.applicationUri}
