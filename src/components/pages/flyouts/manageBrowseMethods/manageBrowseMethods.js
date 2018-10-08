@@ -3,22 +3,22 @@
 import React from 'react';
 import { LinkedComponent, svgs, isDef } from 'utilities';
 import { OpcTwinService } from 'services';
-import { Indicator } from '../../../shared';
 
 import { 
   FormControl,
   Btn, 
   BtnToolbar,
   FormGroup,
+  Indicator,
   FormLabel,
   FormSection,
   SectionDesc,
   SectionHeader,
   SummaryBody,
   SummarySection
-} from '../../../shared';
+} from 'components/shared';
 
-import Flyout from '../../../shared/flyout';
+import Flyout from 'components/shared/flyout';
 import './manageBrowse.css';
 import { 
   toWriteValueModel,
@@ -135,7 +135,6 @@ export class ManageBrowseMethods extends LinkedComponent {
     const { inputArguments } = this.state;
 
     if ((this.actionLink.value === "call") && !isDef(inputArguments))  {
-      //this.setState({ isPending: true });
       this.subscription = OpcTwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
         .subscribe(
           (response) => {

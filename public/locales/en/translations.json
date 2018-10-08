@@ -11,6 +11,8 @@
   "startCounter": "Start Counter",
   "resetCounter": "Reset Counter",
   "count": "Count: {{count}}",
+  "delete": "Delete",
+  "scan": "Scan",
   "browseFlyout":{
     "title": "Manage Opc UA Nodes",
     "selectAction": "Select Action",

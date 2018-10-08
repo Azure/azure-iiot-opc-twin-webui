@@ -1,20 +1,23 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from 'react';
-import { ErrorMsg, 
+import { 
+  ErrorMsg, 
   Indicator, 
   ContextMenu, 
   PageContent, 
   Radio,
   Btn,
-  RefreshBar} from 'components/shared';
-import { isDef, LinkedComponent } from 'utilities';
+  RefreshBar
+} from 'components/shared';
 
+import { isDef } from 'utilities';
 import { 
   pendingApplications, 
   pendingEndpoints, 
   pendingNode, 
-  pendingRead} from 'store/reducers/appReducer';
+  pendingRead
+} from 'store/reducers/appReducer';
 
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
@@ -109,7 +112,7 @@ class DataNode extends Component {
           </div>
         </div>
         {
-          error ? <ErrorMsg>{ error.errorMessage }</ErrorMsg> : null
+          error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
         }
         {
           this.state.expanded
@@ -202,7 +205,7 @@ class EndpointNode extends Component {
           {policy}
         </div>
         {
-          error ? <ErrorMsg>{ error.errorMessage }</ErrorMsg> : null
+          error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
         }
         {
           this.state.expanded
@@ -222,13 +225,14 @@ class ApplicationNode extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { expanded: false };
-    this.state = { error: undefined };
+    this.state = { 
+      expanded: false,
+      isPending: false,
+      error: undefined
+    };
   }
 
-
   toggle = () => {
-
     const { data, api } = this.props;
     // TODO: Prevent calling again if pending state is active
     if (!isDef(data.endpoints)) api.fetchEndpoints(data.applicationId);
@@ -238,18 +242,21 @@ class ApplicationNode extends Component {
   deleteApplication = (applicationId) => {
     const { api } = this.props;
 
+    this.setState({ isPending: true });
     this.subscription = OpcTwinService.deleteApplication(applicationId)
       .subscribe(
         () => {
           api.fetchApplications();
           api.fetchTwins();
+          this.setState({ isPending: false });
         },
         error => this.setState({ error })
       ); 
   }
 
   render() {
-    const { data, api, twinData } = this.props;
+    const { t, data, api, twinData } = this.props;
+    const { isPending } = this.state;
     const error = api.isEndpointsError(data.applicationId);
 
     return (
@@ -262,7 +269,12 @@ class ApplicationNode extends Component {
           </div> 
         </div>
         <div className="btn-delete-container">
-          <Btn value={data.applicationId} onClick={() => this.deleteApplication(data.applicationId)}>{'Delete'}</Btn>
+          <Btn 
+            value={data.applicationId} 
+            onClick={() => this.deleteApplication(data.applicationId)}>
+            {t('delete')}
+            {isPending ? <Indicator size="small" /> : null}
+          </Btn>
         </div>
         {
           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
@@ -277,12 +289,13 @@ class ApplicationNode extends Component {
   }
 }
 
-const ApplicationNodeList = ({ data, api, twinData }) => data.map((app, idx) => (
+const ApplicationNodeList = ({ data, api, twinData, t }) => data.map((app, idx) => (
   <ApplicationNode
     data={app}
     api={api}
     twinData={twinData}
-    key={app.applicationId} />
+    key={app.applicationId}
+    t={t} />
 ));
 
 export class Start extends Component {
@@ -312,27 +325,17 @@ export class Start extends Component {
   }
 
   render() {
-    const { applications, twins, errors } = this.props;
+    const { t, applications, twins, errors } = this.props;
 
     return [
       <ContextMenu key="context-menu">
-        <Btn className="btn-scan" onClick={this.startScan}>{'Scan'}</Btn>
+        <Btn className="btn-scan" onClick={this.startScan}>{t('scan')}</Btn>
         <RefreshBar  refresh={this.refreshApplications}/> 
       </ContextMenu>,
       <PageContent className="start-container" key="page-content">
         { this.nodeApi.isApplicationsPending() && <Indicator /> }
-        <ApplicationNodeList data={applications} twinData={twins} api={this.nodeApi} />
+        <ApplicationNodeList data={applications} twinData={twins} api={this.nodeApi} t={t} />
       </PageContent>
     ];
   }
-}
-
-class CheckBox extends React.Component {
-    
-  render() {
-      return (
-        <input type="checkbox" id={this.props.id} value={this.props.value} onChange={this.props.onChange} />
-      )
-  }
-  
 }
