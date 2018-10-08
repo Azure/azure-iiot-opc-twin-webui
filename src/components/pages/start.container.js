@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
 
 import { Start } from './start';
-import {
+import { 
   epics,
   getApplications,
   getEndpoints,
