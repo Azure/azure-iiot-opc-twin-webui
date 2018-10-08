@@ -43,9 +43,8 @@ $borderColor: $bgColorHover; //#005e8c;
     }
 
     .btn-delete { 
-      position: fixed;
       right: 50px;
-
+      float: right;
       display: inline-block; 
     }
   }
