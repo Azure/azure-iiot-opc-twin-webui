@@ -47,6 +47,7 @@ class NodeApi {
   isReadPending = () => this.isPending(pendingRead());
 
   // Action creator wrappers
+  fetchApplications = () => this.componentRef.props.fetchApplications();
   fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
   fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
   fetchTwins = () => this.componentRef.props.fetchTwins();
@@ -235,11 +236,16 @@ class ApplicationNode extends Component {
   }
 
   deleteApplication = (applicationId) => {
+    const { api } = this.props;
+
     this.subscription = OpcTwinService.deleteApplication(applicationId)
       .subscribe(
-        () => {},
+        () => {
+          api.fetchApplications();
+          api.fetchTwins();
+        },
         error => this.setState({ error })
-      );
+      ); 
   }
 
   render() {
@@ -252,9 +258,11 @@ class ApplicationNode extends Component {
           {data.applicationName} <Expander expanded={this.state.expanded} />
           { api.isEndpointsPending(data.applicationId) ? <Indicator /> : null }
           <div className="node-details">
-            {data.applicationUri}
-            <Btn className="btn-delete" value={data.applicationId} onClick={() => this.deleteApplication(data.applicationId)}>{'Delete'}</Btn>
+            {data.applicationUri} 
           </div> 
+        </div>
+        <div className="btn-delete-container">
+          <Btn value={data.applicationId} onClick={() => this.deleteApplication(data.applicationId)}>{'Delete'}</Btn>
         </div>
         {
           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
@@ -277,7 +285,7 @@ const ApplicationNodeList = ({ data, api, twinData }) => data.map((app, idx) => 
     key={app.applicationId} />
 ));
 
-export class Start extends LinkedComponent {
+export class Start extends Component {
   constructor(props) {
     super(props);
 
@@ -287,9 +295,7 @@ export class Start extends LinkedComponent {
   };
 
   componentDidMount () {
-    this.props.fetchApplications();
-    this.props.fetchTwins();
-    console.log("props", this.props);
+    this.refreshApplications();
   }
 
   refreshApplications = () => {
@@ -307,7 +313,6 @@ export class Start extends LinkedComponent {
 
   render() {
     const { applications, twins, errors } = this.props;
-    this.dataLink = this.linkTo('value');
 
     return [
       <ContextMenu key="context-menu">

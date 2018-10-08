@@ -25,11 +25,12 @@ $borderColor: $bgColorHover; //#005e8c;
     .hierarchy-name {
       padding: 5px;
       cursor: pointer;
+      display: inline-block;
+      width: 80%;
     }
 
     .node-details {
       padding-left: 5px;
-      //display: inline-block;
       @include rem-font-size(14px);
     }
 
@@ -42,10 +43,11 @@ $borderColor: $bgColorHover; //#005e8c;
       outline: none; 
     }
 
-    .btn-delete { 
-      right: 50px;
-      float: right;
+    .btn-delete-container {
+      padding-top: 24px;
       display: inline-block; 
+      float: right;
+      right: 50px;
     }
   }
 }
