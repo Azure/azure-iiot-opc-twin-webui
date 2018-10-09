@@ -81,6 +81,9 @@ class DataNode extends Component {
     }
     else if (data.children){
       // TODO: Prevent calling again if pending state is active
+      if (data.nodeClass === "Variable") {
+        this.openBrowseFlyout();
+      }
       if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
       this.setState({ expanded: !this.state.expanded });
     }
@@ -325,7 +328,7 @@ export class Start extends Component {
   }
 
   render() {
-    const { t, applications, twins, errors } = this.props;
+    const { t, applications, twins } = this.props;
 
     return [
       <ContextMenu key="context-menu">
