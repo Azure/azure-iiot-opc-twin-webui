@@ -24,6 +24,7 @@
     "errorMessage": "Operation failed: ",
     "writeSuccesfully": "Variable written succesfully",
     "callSuccesfully": "Method executed succesfully",
+    "noAccess": "this variable cannot be accessed",
     "options": {
       "read": "Read",
       "write": "Write",

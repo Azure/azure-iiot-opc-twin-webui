@@ -41,7 +41,8 @@ export class ManageBrowseMethods extends LinkedComponent {
       value: undefined,
       error: undefined,
       inputArguments: [],
-      metadataCall: {}
+      metadataCall: {},
+      isAccessible: true 
     };
 
     this.checkAccessLevel();
@@ -86,7 +87,7 @@ export class ManageBrowseMethods extends LinkedComponent {
               this.setState({ value: response.value })
               this.setState({ isPending: false });
             },
-            error => this.setState({ error }) 
+            error => this.setState({ error })
           );
         break;
         default:
@@ -99,18 +100,22 @@ export class ManageBrowseMethods extends LinkedComponent {
     const { data } = this.props;
 
     actionType.length = 0;
+    this.state = { isAccessible: true };
  
     if (data.nodeClass === "Method")
     {
       actionType.push('call');
     }
-    else {
+    else if (data.accessLevel !== undefined) {
       if (data.accessLevel.includes("Read")) {
         actionType.push('read');
       }
       if (data.accessLevel.includes("Write")) {
         actionType.push('write');
       }
+    }
+    else {
+      this.state = { isAccessible: false };
     }
   }
 
@@ -152,7 +157,7 @@ export class ManageBrowseMethods extends LinkedComponent {
 
   render() {
     const { t, onClose, data } = this.props;
-    const { isPending, changesApplied, value, inputArguments, error } = this.state;
+    const { isPending, changesApplied, value, inputArguments, error, isAccessible } = this.state;
 
     const actionOptions = actionType.map((value) => ({
       label: t(`browseFlyout.options.${value}`),
@@ -171,20 +176,22 @@ export class ManageBrowseMethods extends LinkedComponent {
           <form onSubmit={this.apply}>
             <FormSection className="browse-container">
               <SectionHeader>{data.displayName}</SectionHeader>
-              <SectionDesc>{t('browseFlyout.nodeName')}</SectionDesc>
-
-              <FormGroup>
-                <FormLabel>{t('browseFlyout.selectAction')}</FormLabel>
-                <FormControl
-                      type="select"
-                      className="long"
-                      options={actionOptions}
-                      searchable={false}
-                      clearable={false}
-                      placeholder={'Select'}
-                      link={this.actionLink} />
+              <SectionDesc>{data.description !== undefined ? data.description : t('browseFlyout.nodeName')}</SectionDesc>
+              {
+                isAccessible ? 
+                <FormGroup>
+                  <FormLabel>{t('browseFlyout.selectAction')}</FormLabel>
+                  <FormControl
+                        type="select"
+                        className="long"
+                        options={actionOptions}
+                        searchable={false}
+                        clearable={false}
+                        placeholder={'Select'}
+                        link={this.actionLink} />
                 </FormGroup>
-
+                : <SectionHeader>{t('browseFlyout.noAccess')}</SectionHeader>
+              }
               { 
                 this.isWrite() &&
                 <FormGroup>
@@ -252,7 +259,7 @@ export class ManageBrowseMethods extends LinkedComponent {
               {
                 !changesApplied &&
                 <BtnToolbar>
-                  <Btn svg={svgs.reconfigure} primary={true} disabled={ !this.selectionisValid() } type="submit">{t('browseFlyout.apply')}</Btn>
+                  {isAccessible && <Btn svg={svgs.reconfigure} primary={true} disabled={ !this.selectionisValid() } type="submit">{t('browseFlyout.apply')}</Btn>}
                   <Btn svg={svgs.cancelX} onClick={onClose}>{t('browseFlyout.close')}</Btn>
                 </BtnToolbar>
               }
