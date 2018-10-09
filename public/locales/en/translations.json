@@ -1,0 +1,33 @@
+{
+  "header": {
+    "appName": "OpcTwin App",
+    "title": "Browse page",
+    "logout": "Logout"
+  },
+  "tabs": {
+    "start": "start"
+  },
+  "pageHeader": "Start Page",
+  "startCounter": "Start Counter",
+  "resetCounter": "Reset Counter",
+  "count": "Count: {{count}}",
+  "delete": "Delete",
+  "scan": "Scan",
+  "browseFlyout":{
+    "title": "Manage Opc UA Nodes",
+    "selectAction": "Select Action",
+    "close": "Close",
+    "apply": "Apply",
+    "nodeName": "Node  display name",
+    "value": "Value:",
+    "writeMessage": "Enter value to write",
+    "errorMessage": "Operation failed: ",
+    "writeSuccesfully": "Variable written succesfully",
+    "callSuccesfully": "Method executed succesfully",
+    "options": {
+      "read": "Read",
+      "write": "Write",
+      "call": "call"
+    }
+  }
+}

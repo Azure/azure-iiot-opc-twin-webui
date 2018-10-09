@@ -1,0 +1,53 @@
+// Copyright (c) Microsoft. All rights reserved.
+
+@import 'styles/mixins';
+
+$bgColor: #afb9c3;
+$bgColorHover: #494b4d;
+$borderColor: $bgColorHover; //#005e8c;
+.start-container {
+  color: #fff;
+  padding: 20px;
+  @include rem-font-size(18px);
+
+  .hierarchy-level {
+    margin: 5px 0px 5px 20px;
+    padding: 10px 0px 10px 10px;
+    background-color: rgba($bgColor, 0.05);
+    border-color: $borderColor; /* Include default color to avoid odd black-to-color transitions*/
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: rgba($bgColor, 0.05);
+      border-left: 4px solid $borderColor;
+    }
+
+    .hierarchy-name {
+      padding: 5px;
+      cursor: pointer;
+      display: inline-block;
+      width: 80%;
+    }
+
+    .node-details {
+      padding-left: 5px;
+      @include rem-font-size(14px);
+    }
+
+    .text-radio-button {
+      padding-bottom: 8px;
+      @include rem-font-size(14px);
+    }
+
+    .btn-scan:focus { 
+      outline: none; 
+    }
+
+    .btn-delete-container {
+      padding-top: 24px;
+      display: inline-block; 
+      float: right;
+      right: 50px;
+    }
+  }
+}
