@@ -201,9 +201,9 @@ export class ManageBrowseMethods extends LinkedComponent {
                 </FormGroup>
               }
               {
-               !changesApplied && this.isCall() &&
+               !changesApplied && this.isCall() && inputArguments !== undefined &&
                 <SummarySection>
-                {inputArguments.length !==0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
+                {inputArguments.length !== 0 && <SectionHeader>{'Set call arguments'}</SectionHeader>}
                 { 
                   inputArguments.map(({name, type}, index) => [
                     <FormGroup>

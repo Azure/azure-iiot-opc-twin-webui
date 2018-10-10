@@ -13,6 +13,9 @@
   "count": "Count: {{count}}",
   "delete": "Delete",
   "scan": "Scan",
+  "securityMode": "Security Mode: ",
+  "securityPolicy": "Security policy: ", 
+  "activateEndpoint": "Browse enabled",
   "browseFlyout":{
     "title": "Manage Opc UA Nodes",
     "selectAction": "Select Action",
