@@ -49,5 +49,12 @@ $borderColor: $bgColorHover; //#005e8c;
       float: right;
       right: 50px;
     }
+
+    .node-value {
+      width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }

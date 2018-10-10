@@ -107,8 +107,11 @@ class DataNode extends Component {
         <div className="node-details">
           { data.description }
           <div>
-            {"node type: " }
+            {"node type: "}
             {data.nodeClass}
+            <div className="node-value"> 
+              {data.value !== undefined && data.children === false  && <label>{' value: '}{String(data.value)}</label> }
+            </div>
           </div>
         </div>
         {
