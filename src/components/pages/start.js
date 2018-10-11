@@ -69,6 +69,21 @@ class DataNode extends Component {
     };
   }
 
+  componentDidMount() {
+    this.interval = setInterval(() => this.update(), 15000);
+  } 
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  update () {
+    const { data, api, endpoint } = this.props;
+    if (this.state.expanded) {
+      api.fetchNode(endpoint, data.id);
+    }
+  }
+
   closeFlyout = () => {this.setState(closedFlyoutState);}
 
   openBrowseFlyout = () => this.setState({ openFlyoutName: 'Browse' });
@@ -93,14 +108,14 @@ class DataNode extends Component {
     const { data, api, endpoint } = this.props;
     const targets = (api.getReferences(endpoint, data.id) || [])
       .map(targetId => api.getNode(endpoint, targetId));
-      const error = api.isNodeError(endpoint, data.id);
+    const error = api.isNodeError(endpoint, data.id);
 
     const browseFlyoutOpen = this.state.openFlyoutName === 'Browse';
 
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name" onClick={this.toggle}>
-          { data.displayName }
+          { data.displayName } {" "}
           { data.children ? <Expander expanded={this.state.expanded} /> : null }
           { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
         </div>
@@ -110,7 +125,7 @@ class DataNode extends Component {
             {"node type: "}
             {data.nodeClass}
             <div className="node-value"> 
-              {data.value !== undefined && data.children === false  && <label>{' value: '}{String(data.value)}</label> }
+              {data.value !== undefined && data.children === false  && <label>{' Value: '}{String(data.value)}</label> }
             </div>
           </div>
         </div>

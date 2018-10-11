@@ -31,7 +31,11 @@
     "options": {
       "read": "Read",
       "write": "Write",
-      "call": "call"
+      "call": "Call"
+    },
+    "validation": {
+      "required": "Is required",
+      "NaN": "Input must be a number"
     }
   }
 }
