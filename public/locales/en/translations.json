@@ -34,7 +34,7 @@
       "call": "Call"
     },
     "validation": {
-      "required": "Is required",
+      "required": "Parameter is required",
       "NaN": "Input must be a number"
     }
   }

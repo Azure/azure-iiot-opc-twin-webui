@@ -13,7 +13,8 @@ import {
   getPendingStates,
   getReferences,
   getErrors,
-  getTwins
+  getTwins,
+  getPaths
 } from 'store/reducers/appReducer';
 
 const mapStateToProps = state => ({
@@ -24,7 +25,8 @@ const mapStateToProps = state => ({
   pendingStates: getPendingStates(state),
   references: getReferences(state),
   errors: getErrors(state),
-  twins: getTwins(state)
+  twins: getTwins(state),
+  path: getPaths(state)
 });
 
 const mapDispatchToProps = dispatch => {
@@ -34,7 +36,8 @@ const mapDispatchToProps = dispatch => {
     fetchApplications: () => dispatch(epics.actions.fetchApplications()),
     fetchEndpoints: (applicationId) => dispatch(epics.actions.fetchEndpoints(applicationId)),
     fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId })),
-    fetchTwins: () => dispatch(epics.actions.fetchTwins())
+    fetchTwins: () => dispatch(epics.actions.fetchTwins()),
+    fetchPath: (path) => dispatch(epics.actions.fetchPath(path))
   };
 }
 

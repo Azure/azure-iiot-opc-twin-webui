@@ -76,6 +76,13 @@ export const epics = createEpicScenario({
         .catch(handleError(pendingFlag, fromAction));
     }
   },
+  fetchPath: {
+    type: 'FETCH_PATH',
+    rawEpic: (action$, store, actionType) =>
+      action$
+        .ofType(actionType)
+        .map(({ payload }) => redux.actions.updatePath({payload})) // payload === pathname
+  }
 });
 
 // ========================= Epics - END
@@ -103,7 +110,8 @@ const initialState = {
     endpoints: {},
     nodes: {},
     references: {},
-    twins: {}
+    twins: {},
+    path: ''
   },
   pendingStates: {},
   errors: {},
@@ -198,13 +206,23 @@ const updateTwinsReducer = (state, action) => {
   });
 }
 
+const updatePathReducer = (state, action) => { 
+  
+   return update(state, {
+    entities: {
+      path: { $set: action.payload.payload }
+    }
+  }); 
+}
+
 export const redux = createReducerScenario({
   updateApplication: { type: 'UPDATE_APPLICATIONS', reducer: updateApplicationsReducer },
   updateApplicationWithEndpoint: { type: 'UPDATE_APPLICATION_WITH_ENDPOINT', reducer: updateApplicationWithEndpointReducer },
   updateRootNode: { type: 'UPDATE_ROOT_NODE', reducer: updateRootNodeReducer },
   startPendingState: { type: 'START_PENDING_STATE', reducer: startPendingStateReducer },
   registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer },
-  updateTwins: { type: 'UPDATE_TWINS', reducer: updateTwinsReducer }
+  updateTwins: { type: 'UPDATE_TWINS', reducer: updateTwinsReducer },
+  updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -219,5 +237,6 @@ export const getNodes = state => getEntities(state).nodes;
 export const getReferences = state => getEntities(state).references;
 export const getPendingStates = state => getAppReducer(state).pendingStates;
 export const getErrors = state => getAppReducer(state).errors;
-export const getTwins = state => Object.values(getEntities(state).twins)
+export const getTwins = state => Object.values(getEntities(state).twins);
+export const getPaths = state => getEntities(state).path;
 // ========================= Selectors - END

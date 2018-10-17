@@ -39,10 +39,6 @@ $borderColor: $bgColorHover; //#005e8c;
       @include rem-font-size(14px);
     }
 
-    .btn-scan:focus { 
-      outline: none; 
-    }
-
     .btn-delete-container {
       padding-top: 24px;
       display: inline-block; 
@@ -57,4 +53,17 @@ $borderColor: $bgColorHover; //#005e8c;
       white-space: nowrap;
     }
   }
+
+  .btn-scan:focus { 
+    outline: none; 
+  }
+}
+
+.text-path {
+  position: absolute;
+  //align-self: flex-start;
+  text-align: left;
+  font-size: 14px;
+  margin-top: 15px;
+  left: 20px;
 }
