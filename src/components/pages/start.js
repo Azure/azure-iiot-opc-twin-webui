@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import React, { Component } from 'react';
+import moment from 'moment';
 import { 
   ErrorMsg, 
   Indicator, 
@@ -19,6 +20,7 @@ import {
   pendingRead
 } from 'store/reducers/appReducer';
 
+import { EndpointDropdown } from 'components/app/endpointDropdown';
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
 import { toScanModel } from 'services/models';
@@ -165,7 +167,8 @@ class EndpointNode extends Component {
       expanded: false,
       error: undefined,
       isPending: false,
-      path: undefined
+      path: undefined,
+      security: 0
      };
   }
 
@@ -250,9 +253,9 @@ class EndpointNode extends Component {
   }
 }
 
-const EndpointNodeList = ({ data, api, twinData, path, t }) => data.map(endpointId =>
+const EndpointNodeList = ({ data, api, twinData, path, t }) => data.map((endpointId, index) =>
   <EndpointNode 
-    data={api.getEndpoint(endpointId)} 
+    data={data[index]}
     api={api} 
     key={endpointId} 
     twinData={twinData} 
@@ -295,7 +298,7 @@ class ApplicationNode extends Component {
   }
 
   render() {
-    const { t, applicationData, api, twinData } = this.props;
+    const { t, applicationData, api, twinData, filteredEndpoints } = this.props;
     const { isPending } = this.state;
     const error = api.isEndpointsError(applicationData.applicationId);
 
@@ -321,7 +324,12 @@ class ApplicationNode extends Component {
         }
         {
           this.state.expanded && applicationData.endpoints && applicationData.endpoints.length
-            ? <EndpointNodeList data={applicationData.endpoints} api={api} twinData={twinData} path={applicationData.applicationName} t={t} />
+            ? <EndpointNodeList 
+                data={filteredEndpoints} 
+                api={api} 
+                twinData={twinData} 
+                path={applicationData.applicationName} 
+                t={t} />
             : null
         }
       </div>
@@ -329,12 +337,14 @@ class ApplicationNode extends Component {
   }
 }
 
-const ApplicationNodeList = ({ applicationData, api, twinData, t }) => applicationData.map((app, idx) => (
+const ApplicationNodeList = ({ applicationData, api, twinData, endpointFilter, filteredEndpoints, t }) => applicationData.map((app, idx) => (
   <ApplicationNode
     applicationData={app}
     api={api}
     twinData={twinData}
     key={app.applicationId}
+    endpointFilter={endpointFilter}
+    filteredEndpoints={filteredEndpoints}
     t={t} />
 ));
 
@@ -342,7 +352,9 @@ export class Start extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { error: undefined };
+    this.state = { 
+      error: undefined,
+      lastRefreshed: undefined };
 
     this.nodeApi = new NodeApi(this);
   };
@@ -354,6 +366,8 @@ export class Start extends Component {
   refreshApplications = () => {
     this.props.fetchApplications();
     this.props.fetchTwins();
+    this.setState({lastRefreshed: moment() });
+    this.nodeApi.fetchPath('');
   }
 
   startScan = () => {
@@ -365,13 +379,22 @@ export class Start extends Component {
   }
 
   render() {
-    const { t, applications, twins } = this.props;
+    const { t, applications, twins, endpointFilter, filteredEndpoints, path } = this.props;
+    const { lastRefreshed } = this.state;
 
     return [
       <ContextMenu key="context-menu">
-         <div className="text-path"> { this.props.path }</div> 
+        <div className="text-path"> { path }</div> 
+        <EndpointDropdown
+          onChange={this.props.updateEndpointFilter}
+          value={endpointFilter}
+          t={t} />
         <Btn className="btn-scan" onClick={this.startScan}>{t('scan')}</Btn>
-        <RefreshBar  refresh={this.refreshApplications}/> 
+        <RefreshBar  
+          refresh={this.refreshApplications}
+          time={lastRefreshed}
+          isPending={this.nodeApi.isApplicationsPending()}
+          t={t} /> 
       </ContextMenu>,
       <PageContent className="start-container" key="page-content">
         { this.nodeApi.isApplicationsPending() && <Indicator /> }
@@ -379,6 +402,8 @@ export class Start extends Component {
           applicationData={applications} 
           twinData={twins} 
           api={this.nodeApi} 
+          endpointFilter={endpointFilter}
+          filteredEndpoints={filteredEndpoints}
           t={t} />
       </PageContent>
     ];

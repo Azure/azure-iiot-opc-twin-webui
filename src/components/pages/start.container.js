@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
-
+import { translate } from 'react-i18next';
 import { Start } from './start';
 import { 
+  redux as appRedux,
   epics,
   getApplications,
   getEndpoints,
@@ -14,7 +14,9 @@ import {
   getReferences,
   getErrors,
   getTwins,
-  getPaths
+  getPaths,
+  getEndpointFilter,
+  getFilteredEndpoints
 } from 'store/reducers/appReducer';
 
 const mapStateToProps = state => ({
@@ -26,7 +28,9 @@ const mapStateToProps = state => ({
   references: getReferences(state),
   errors: getErrors(state),
   twins: getTwins(state),
-  path: getPaths(state)
+  path: getPaths(state),
+  endpointFilter: getEndpointFilter(state),
+  filteredEndpoints: getFilteredEndpoints(state)
 });
 
 const mapDispatchToProps = dispatch => {
@@ -37,7 +41,8 @@ const mapDispatchToProps = dispatch => {
     fetchEndpoints: (applicationId) => dispatch(epics.actions.fetchEndpoints(applicationId)),
     fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId })),
     fetchTwins: () => dispatch(epics.actions.fetchTwins()),
-    fetchPath: (path) => dispatch(epics.actions.fetchPath(path))
+    fetchPath: (path) => dispatch(epics.actions.fetchPath(path)),
+    updateEndpointFilter: endpointFilter => dispatch(appRedux.actions.updateEndpointFilter(endpointFilter))
   };
 }
 

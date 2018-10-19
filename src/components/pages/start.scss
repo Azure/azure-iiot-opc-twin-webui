@@ -61,9 +61,11 @@ $borderColor: $bgColorHover; //#005e8c;
 
 .text-path {
   position: absolute;
-  //align-self: flex-start;
   text-align: left;
   font-size: 14px;
   margin-top: 15px;
   left: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

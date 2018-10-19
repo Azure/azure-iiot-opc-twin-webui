@@ -11,6 +11,7 @@ import {
   createReducerScenario,
   createEpicScenario
 } from '../utilities';
+import { createSelector } from 'reselect';
 
 // ========================= Pending State Flag Generators - START
 export const pendingApplications = () => 'FETCHING_APPLICATIONS';
@@ -116,7 +117,8 @@ const initialState = {
   pendingStates: {},
   errors: {},
   browseFlyoutIsOpen: false,
-  value: {}
+  value: {},
+  endpointFilter: 'all'
 };
 
 const unsetPendingFlag = flag => ({ pendingStates: { $unset: [flag] }});
@@ -215,6 +217,10 @@ const updatePathReducer = (state, action) => {
   }); 
 }
 
+const updateEndpointFilter = (state, { payload }) => update(state,
+  { endpointFilter: { $set: payload } }
+);
+
 export const redux = createReducerScenario({
   updateApplication: { type: 'UPDATE_APPLICATIONS', reducer: updateApplicationsReducer },
   updateApplicationWithEndpoint: { type: 'UPDATE_APPLICATION_WITH_ENDPOINT', reducer: updateApplicationWithEndpointReducer },
@@ -222,7 +228,8 @@ export const redux = createReducerScenario({
   startPendingState: { type: 'START_PENDING_STATE', reducer: startPendingStateReducer },
   registerError: { type: 'REGISTER_ERROR', reducer: registerErrorReducer },
   updateTwins: { type: 'UPDATE_TWINS', reducer: updateTwinsReducer },
-  updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer }
+  updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer },
+  updateEndpointFilter: { type: 'APP_UPDATE_ENDPOINT_FILTER', reducer: updateEndpointFilter }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -231,7 +238,7 @@ export const reducer = { app: redux.getReducer(initialState) };
 // ========================= Selectors - START
 export const getAppReducer = state => state.app;
 export const getEntities = state => getAppReducer(state).entities;
-export const getApplications = state => Object.values(getEntities(state).applications)
+export const getApplications = state => Object.values(getEntities(state).applications);
 export const getEndpoints = state => getEntities(state).endpoints;
 export const getNodes = state => getEntities(state).nodes;
 export const getReferences = state => getEntities(state).references;
@@ -239,4 +246,16 @@ export const getPendingStates = state => getAppReducer(state).pendingStates;
 export const getErrors = state => getAppReducer(state).errors;
 export const getTwins = state => Object.values(getEntities(state).twins);
 export const getPaths = state => getEntities(state).path;
+export const getEndpointFilter = state => getAppReducer(state).endpointFilter;
+export const getFilteredEndpoints = createSelector(
+  getEndpoints, getEndpointFilter,
+  (endpointList, filter) => {
+    const endpointArray = Object.values(endpointList);
+    if (filter === 'secure' && endpointArray.length > 0) {
+      const index = endpointArray.findIndex(x => x.securityLevel === Math.max(...endpointArray.map(x => x.securityLevel)))
+      return endpointArray.slice(index, index + 1); 
+    } else {
+      return endpointArray;
+    }
+  });
 // ========================= Selectors - END
