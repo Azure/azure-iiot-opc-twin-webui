@@ -13,6 +13,9 @@
   "count": "Count: {{count}}",
   "delete": "Delete",
   "scan": "Scan",
+  "securityMode": "Security Mode: ",
+  "securityPolicy": "Security policy: ", 
+  "activateEndpoint": "Browse enabled",
   "browseFlyout":{
     "title": "Manage Opc UA Nodes",
     "selectAction": "Select Action",
@@ -24,6 +27,7 @@
     "errorMessage": "Operation failed: ",
     "writeSuccesfully": "Variable written succesfully",
     "callSuccesfully": "Method executed succesfully",
+    "noAccess": "this variable cannot be accessed",
     "options": {
       "read": "Read",
       "write": "Write",

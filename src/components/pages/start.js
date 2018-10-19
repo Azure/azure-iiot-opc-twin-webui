@@ -84,9 +84,9 @@ class DataNode extends Component {
       if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
       this.setState({ expanded: !this.state.expanded });
     }
-    else {
+    else if (data.nodeClass === "Variable") {
       this.openBrowseFlyout();
-    }
+    } 
   }
 
   render() {
@@ -181,7 +181,7 @@ class EndpointNode extends Component {
   }
 
   render() {
-    const { data, api } = this.props;
+    const { data, api, t } = this.props;
     const { isPending } = this.state;
     const [_, policy] = data.endpoint.securityPolicy.split('#');
     const rootNode = api.getNode(data.id, api.getReferences(data.id));
@@ -191,18 +191,18 @@ class EndpointNode extends Component {
       <div className="hierarchy-level">
         {
           <Radio checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
-            <div className="text-radio-button"> {'active'}  {isPending ? <Indicator size="small" /> : null} </div>
+            <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
            </Radio>
         }
-        <div className="hierarchy-name" onClick={this.toggle}>
-          {data.endpoint.url} <Expander expanded={this.state.expanded} />
+        <div className="hierarchy-name" onClick={this.isActive() && this.toggle}>
+          {data.endpoint.url} {this.isActive() && <Expander expanded={this.state.expanded} />}
           { api.isNodePending(data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
-          {data.endpoint.securityMode}
+          {t('securityMode')}{data.endpoint.securityMode}
         </div>
         <div className="node-details">
-          {policy}
+          {t('securityPolicy')}{policy}
         </div>
         {
           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
@@ -217,8 +217,8 @@ class EndpointNode extends Component {
   }
 }
 
-const EndpointNodeList = ({ data, api, twinData }) => data.map(endpointId =>
-  <EndpointNode data={api.getEndpoint(endpointId)} api={api} key={endpointId} twinData={twinData}/>
+const EndpointNodeList = ({ data, api, twinData, t }) => data.map(endpointId =>
+  <EndpointNode data={api.getEndpoint(endpointId)} api={api} key={endpointId} twinData={twinData} t={t}/>
 );
 
 class ApplicationNode extends Component {
@@ -281,7 +281,7 @@ class ApplicationNode extends Component {
         }
         {
           this.state.expanded && data.endpoints && data.endpoints.length
-            ? <EndpointNodeList data={data.endpoints} api={api} twinData={twinData} />
+            ? <EndpointNodeList data={data.endpoints} api={api} twinData={twinData} t={t} />
             : null
         }
       </div>
@@ -325,7 +325,7 @@ export class Start extends Component {
   }
 
   render() {
-    const { t, applications, twins, errors } = this.props;
+    const { t, applications, twins } = this.props;
 
     return [
       <ContextMenu key="context-menu">
