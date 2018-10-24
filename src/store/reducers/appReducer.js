@@ -157,9 +157,10 @@ const registerErrorReducer = (state, { payload, error, fromAction }) => update(s
 });
 
 const updateApplicationsReducer = (state, action) => {
-  const { entities: { applications = {} } } = normalize(
-      action.payload.filter(x => x.supervisorId === action.fromAction.payload), 
-      applicationListSchema);
+  const payload = action.fromAction.payload !== undefined 
+    ? action.payload.filter(x => x.supervisorId === action.fromAction.payload)
+    : action.payload
+  const { entities: { applications = {} } } = normalize(payload, applicationListSchema);
 
   return update(state, {
     entities: {
@@ -176,6 +177,7 @@ const updateApplicationWithEndpointReducer = (state, action) => {
       (acc ,endpointId) => ({ ...acc, [endpointId]: {}}),
       {}
     );
+
   return update(state, {
     entities: {
       applications: { $merge: applications },

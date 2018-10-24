@@ -244,7 +244,7 @@ class EndpointNode extends Component {
         {
           <Radio checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
             <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
-           </Radio>
+          </Radio>
         }
         <div className="hierarchy-name">
           {this.isActive() && <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>} {data.endpoint.url} 
@@ -287,6 +287,17 @@ class ApplicationNode extends Component {
       isPending: false,
       error: undefined
     };
+  }
+
+  componentWillReceiveProps(props) {
+    const { supervisorId, api, refresh } = this.props;
+
+    if (props.refresh !== refresh) {
+      api.fetchApplications(supervisorId);
+      api.fetchTwins();
+    
+      this.setState({ expanded: false });
+    }
   }
 
   toggle = () => {
@@ -354,7 +365,7 @@ class ApplicationNode extends Component {
   }
 }
 
-const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filteredEndpoints, supervisorId, path, t }) => applicationData.map((app, idx) => (
+const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filteredEndpoints, supervisorId, path, t, refresh }) => applicationData.map((app, idx) => (
   <ApplicationNode
     applicationData={app}
     api={api}
@@ -364,7 +375,8 @@ const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filt
     filteredEndpoints={filteredEndpoints}
     supervisorId={supervisorId}
     path={path}
-    t={t} />
+    t={t}
+    refresh={refresh} />
 ));
 
 class Supervisor extends Component {
@@ -390,7 +402,7 @@ class Supervisor extends Component {
   }
 
   render() {
-    const { t, supervisorsData, api, applicationData, twins, endpointFilter, filteredEndpoints } = this.props;
+    const { t, supervisorsData, api, applicationData, twins, endpointFilter, filteredEndpoints, refresh } = this.props;
     const error = api.isApplicationsError();
 
     return (
@@ -414,7 +426,8 @@ class Supervisor extends Component {
               filteredEndpoints={filteredEndpoints}
               supervisorId={supervisorsData.id}
               path={supervisorsData.id}
-              t={t} /> 
+              t={t}
+              refresh={refresh} /> 
           : null
         }
       </div>
@@ -422,7 +435,7 @@ class Supervisor extends Component {
   }
 }
 
-const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpointFilter, filteredEndpoints, t }) => supervisorsData.map((app, idx) => (
+const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpointFilter, filteredEndpoints, t, refresh }) => supervisorsData.map((app, idx) => (
   <Supervisor
     supervisorsData={app}
     applicationData={applicationData}
@@ -431,7 +444,8 @@ const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpoint
     key={app.id}
     endpointFilter={endpointFilter}
     filteredEndpoints={filteredEndpoints}
-    t={t} />
+    t={t}
+    refresh={refresh} />
 ));
 
 export class Start extends Component {
@@ -440,19 +454,21 @@ export class Start extends Component {
 
     this.state = { 
       error: undefined,
-      lastRefreshed: undefined };
+      lastRefreshed: undefined,
+      refresh: false };
 
     this.nodeApi = new NodeApi(this);
   };
 
   componentDidMount () {
-    this.refresh();
+    this.props.fetchSupervisors();
   }
 
   refresh = () => {
     this.props.fetchSupervisors();
+    this.props.fetchPath('');
     this.setState({lastRefreshed: moment() });
-    this.nodeApi.fetchPath('');
+    this.setState({refresh: !this.state.refresh });
   }
 
   startScan = () => {
@@ -465,7 +481,7 @@ export class Start extends Component {
 
   render() {
     const { t, applications, twins, endpointFilter, filteredEndpoints, path, supervisors } = this.props;
-    const { lastRefreshed } = this.state;
+    const { lastRefreshed, refresh } = this.state;
 
     return [
       <ContextMenu key="context-menu">
@@ -485,13 +501,14 @@ export class Start extends Component {
         
         { this.nodeApi.isSupervisorsPending() && <Indicator /> }
         <SupervisorList 
-          supervisorsData={supervisors} 
+           supervisorsData={supervisors} 
           applicationData={applications} 
           api={this.nodeApi} 
           twins={twins} 
           endpointFilter={endpointFilter}
-          filteredEndpoints={filteredEndpoints}
-          t={t} />
+          filteredEndpoints={filteredEndpoints} 
+          t={t}
+          refresh={refresh} />
       </PageContent>
     ];
   }
