@@ -14,7 +14,8 @@ import {
 
 import { isDef } from 'utilities';
 import { 
-  pendingApplications, 
+  pendingApplications,
+  pendingSupervisors, 
   pendingEndpoints, 
   pendingNode, 
   pendingRead
@@ -49,13 +50,15 @@ class NodeApi {
   isNodePending = (endpointId, nodeId) => this.isPending(pendingNode(endpointId, nodeId));
   isEndpointsPending = (applicationId) => this.isPending(pendingEndpoints(applicationId));
   isApplicationsPending = () => this.isPending(pendingApplications());
+  isSupervisorsPending = () => this.isPending(pendingSupervisors());
   isReadPending = () => this.isPending(pendingRead());
 
   // Action creator wrappers
-  fetchApplications = () => this.componentRef.props.fetchApplications();
+  fetchApplications = (supervisor) => this.componentRef.props.fetchApplications(supervisor);
   fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
   fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
   fetchTwins = () => this.componentRef.props.fetchTwins();
+  fetchSupervisors = () => this.componentRef.props.fetchSupervisors();
   fetchPath = (path) => this.componentRef.props.fetchPath(path);
 }
 
@@ -210,8 +213,8 @@ class EndpointNode extends Component {
   }
 
   isActive () {
-    const { data, twinData } = this.props;
-    const value = twinData.filter(item => item.endpointId === data.id)
+    const { data, twins } = this.props;
+    const value = twins.filter(item => item.endpointId === data.id)
       .map(item => item.activated)[0] === true ? true : false;
     return value;
   }
@@ -253,12 +256,12 @@ class EndpointNode extends Component {
   }
 }
 
-const EndpointNodeList = ({ data, api, twinData, path, t }) => data.map((endpointId, index) =>
+const EndpointNodeList = ({ data, api, twins, path, t }) => data.map((endpointId, index) =>
   <EndpointNode 
     data={data[index]}
     api={api} 
     key={endpointId} 
-    twinData={twinData} 
+    twins={twins} 
     path={path}
     t={t} />
 );
@@ -274,22 +277,25 @@ class ApplicationNode extends Component {
   }
 
   toggle = () => {
-    const { applicationData, api } = this.props;
+    const { applicationData, api, path } = this.props;
     // TODO: Prevent calling again if pending state is active
     if (!isDef(applicationData.endpoints)) api.fetchEndpoints(applicationData.applicationId);
     this.setState({ expanded: !this.state.expanded });
 
-    api.fetchPath('/' + applicationData.applicationName);
+    //api.fetchPath('/' + applicationData.applicationName);
+
+    const currentPath = api.fetchPath('/' + path + '/' + applicationData.applicationName);
+    this.setState({path: currentPath.payload});
   }
 
   deleteApplication = (applicationId) => {
-    const { api } = this.props;
+    const { api, supervisorId } = this.props;
 
     this.setState({ isPending: true });
     this.subscription = OpcTwinService.deleteApplication(applicationId)
       .subscribe(
         () => {
-          api.fetchApplications();
+          api.fetchApplications(supervisorId);
           api.fetchTwins();
           this.setState({ isPending: false });
         },
@@ -298,7 +304,7 @@ class ApplicationNode extends Component {
   }
 
   render() {
-    const { t, applicationData, api, twinData, filteredEndpoints } = this.props;
+    const { t, applicationData, api, twins, filteredEndpoints } = this.props;
     const { isPending } = this.state;
     const error = api.isEndpointsError(applicationData.applicationId);
 
@@ -327,7 +333,7 @@ class ApplicationNode extends Component {
             ? <EndpointNodeList 
                 data={filteredEndpoints} 
                 api={api} 
-                twinData={twinData} 
+                twins={twins} 
                 path={applicationData.applicationName} 
                 t={t} />
             : null
@@ -337,16 +343,83 @@ class ApplicationNode extends Component {
   }
 }
 
-const ApplicationNodeList = ({ applicationData, api, twinData, endpointFilter, filteredEndpoints, t }) => applicationData.map((app, idx) => (
+const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filteredEndpoints, supervisorId, path, t }) => applicationData.map((app, idx) => (
   <ApplicationNode
     applicationData={app}
     api={api}
-    twinData={twinData}
+    twins={twins}
     key={app.applicationId}
+    endpointFilter={endpointFilter}
+    filteredEndpoints={filteredEndpoints}
+    supervisorId={supervisorId}
+    path={path}
+    t={t} />
+));
+
+class Supervisor extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { 
+      expanded: false,
+      isPending: false,
+      error: undefined
+    };
+  }
+
+  toggle = () => {
+    const { supervisorsData, api } = this.props;
+
+    api.fetchApplications(supervisorsData.id);
+    api.fetchTwins();
+   
+    this.setState({ expanded: !this.state.expanded });
+    
+    api.fetchPath('/' + supervisorsData.id);
+  }
+
+  render() {
+    const { t, supervisorsData, api, applicationData, twins, endpointFilter, filteredEndpoints } = this.props;
+    const error = api.isApplicationsError();
+
+    return (
+      <div className="hierarchy-level">
+        <div className="hierarchy-name" onClick={this.toggle}>
+          {supervisorsData.id} <Expander expanded={this.state.expanded} />
+          { api.isApplicationsPending() ? <Indicator /> : null }
+        </div>
+        {
+          error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
+        }
+        { 
+          this.state.expanded && isDef(supervisorsData) && isDef(applicationData)
+          ? <ApplicationNodeList 
+              applicationData={applicationData} 
+              api={api} 
+              twins={twins} 
+              endpointFilter={endpointFilter}
+              filteredEndpoints={filteredEndpoints}
+              supervisorId={supervisorsData.id}
+              path={supervisorsData.id}
+              t={t} /> 
+          : null
+        }
+      </div>
+    );
+  }
+}
+
+const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpointFilter, filteredEndpoints, t }) => supervisorsData.map((app, idx) => (
+  <Supervisor
+    supervisorsData={app}
+    applicationData={applicationData}
+    api={api}
+    twins={twins}
+    key={app.id}
     endpointFilter={endpointFilter}
     filteredEndpoints={filteredEndpoints}
     t={t} />
 ));
+
 
 export class Start extends Component {
   constructor(props) {
@@ -360,12 +433,11 @@ export class Start extends Component {
   };
 
   componentDidMount () {
-    this.refreshApplications();
+    this.refresh();
   }
 
-  refreshApplications = () => {
-    this.props.fetchApplications();
-    this.props.fetchTwins();
+  refresh = () => {
+    this.props.fetchSupervisors();
     this.setState({lastRefreshed: moment() });
     this.nodeApi.fetchPath('');
   }
@@ -379,7 +451,7 @@ export class Start extends Component {
   }
 
   render() {
-    const { t, applications, twins, endpointFilter, filteredEndpoints, path } = this.props;
+    const { t, applications, twins, endpointFilter, filteredEndpoints, path, supervisors } = this.props;
     const { lastRefreshed } = this.state;
 
     return [
@@ -391,17 +463,19 @@ export class Start extends Component {
           t={t} />
         <Btn className="btn-scan" onClick={this.startScan}>{t('scan')}</Btn>
         <RefreshBar  
-          refresh={this.refreshApplications}
+          refresh={this.refresh}
           time={lastRefreshed}
-          isPending={this.nodeApi.isApplicationsPending()}
+          isPending={this.nodeApi.isSupervisorsPending()}
           t={t} /> 
       </ContextMenu>,
       <PageContent className="start-container" key="page-content">
-        { this.nodeApi.isApplicationsPending() && <Indicator /> }
-        <ApplicationNodeList 
+        
+        { this.nodeApi.isSupervisorsPending() && <Indicator /> }
+        <SupervisorList 
+          supervisorsData={supervisors} 
           applicationData={applications} 
-          twinData={twins} 
           api={this.nodeApi} 
+          twins={twins} 
           endpointFilter={endpointFilter}
           filteredEndpoints={filteredEndpoints}
           t={t} />

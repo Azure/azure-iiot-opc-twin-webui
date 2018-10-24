@@ -71,4 +71,10 @@ export class OpcTwinService {
   static deleteApplication(applicationId) {
     return HttpClient.delete(`${ENDPOINT_REGISTRY}applications/${applicationId}`);
   }
+
+  static getSupervisorsList() {
+    const value = HttpClient.get(`${ENDPOINT_REGISTRY}supervisors`, undefined, false)
+      .map(getItems);
+    return value;
+  }
 }

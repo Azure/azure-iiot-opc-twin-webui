@@ -14,6 +14,7 @@ import {
   getReferences,
   getErrors,
   getTwins,
+  getSupervisors,
   getPaths,
   getEndpointFilter,
   getFilteredEndpoints
@@ -28,6 +29,7 @@ const mapStateToProps = state => ({
   references: getReferences(state),
   errors: getErrors(state),
   twins: getTwins(state),
+  supervisors: getSupervisors(state),
   path: getPaths(state),
   endpointFilter: getEndpointFilter(state),
   filteredEndpoints: getFilteredEndpoints(state)
@@ -37,10 +39,11 @@ const mapDispatchToProps = dispatch => {
   window.savedDispatch = dispatch;
   window.savedEpics = epics;
   return {
-    fetchApplications: () => dispatch(epics.actions.fetchApplications()),
+    fetchApplications: (supervisor) => dispatch(epics.actions.fetchApplications(supervisor)),
     fetchEndpoints: (applicationId) => dispatch(epics.actions.fetchEndpoints(applicationId)),
     fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId })),
     fetchTwins: () => dispatch(epics.actions.fetchTwins()),
+    fetchSupervisors: () => dispatch(epics.actions.fetchSupervisors()),
     fetchPath: (path) => dispatch(epics.actions.fetchPath(path)),
     updateEndpointFilter: endpointFilter => dispatch(appRedux.actions.updateEndpointFilter(endpointFilter))
   };
