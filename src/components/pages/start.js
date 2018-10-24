@@ -62,7 +62,15 @@ class NodeApi {
   fetchPath = (path) => this.componentRef.props.fetchPath(path);
 }
 
-const Expander = ({ expanded }) => <span>[{ expanded ? '-' : '+'}]</span>
+export class Expander extends Component {
+
+  render() {
+    return (
+      <div className="expander" onClick={this.props.onClick}>[{ this.props.expanded ? '-' : '+'}] </div>
+    )
+  }
+} 
+
 const closedFlyoutState = { openFlyoutName: undefined };
 
 class DataNode extends Component {
@@ -98,20 +106,25 @@ class DataNode extends Component {
   toggle = () => {
     const { data, api, endpoint, path } = this.props;
 
-    if (data.nodeClass === "Method") {
-      this.openBrowseFlyout();
-    }
-    else if (data.children){
+    if (data.children){
       // TODO: Prevent calling again if pending state is active
       if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
       this.setState({ expanded: !this.state.expanded });
     }
+    
+    const currentPath = api.fetchPath(path + '/' + data.displayName);
+    this.setState({path: currentPath.payload});
+  }
+
+  onClickAction = () => {
+    const { data } = this.props;
+
+    if (data.nodeClass === "Method") {
+      this.openBrowseFlyout();
+    }
     else if (data.nodeClass === "Variable") {
       this.openBrowseFlyout();
     } 
-
-    const currentPath = api.fetchPath(path + '/' + data.displayName);
-    this.setState({path: currentPath.payload});
   }
 
   render() {
@@ -125,9 +138,9 @@ class DataNode extends Component {
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name" onClick={this.toggle}>
-          { data.displayName } {" "}
-          { data.children ? <Expander expanded={this.state.expanded} /> : null }
+        <div className="hierarchy-name" >
+          { data.children ? <Expander expanded={this.state.expanded} onClick={this.toggle} /> : null } {" "}
+          <div className="node-name" onClick={this.onClickAction}>{ data.displayName } </div> 
           { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -233,8 +246,8 @@ class EndpointNode extends Component {
             <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
            </Radio>
         }
-        <div className="hierarchy-name" onClick={this.isActive() && this.toggle}>
-          {data.endpoint.url} {this.isActive() && <Expander expanded={this.state.expanded} />}
+        <div className="hierarchy-name">
+          {this.isActive() && <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>} {data.endpoint.url} 
           { api.isNodePending(data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -282,8 +295,6 @@ class ApplicationNode extends Component {
     if (!isDef(applicationData.endpoints)) api.fetchEndpoints(applicationData.applicationId);
     this.setState({ expanded: !this.state.expanded });
 
-    //api.fetchPath('/' + applicationData.applicationName);
-
     const currentPath = api.fetchPath('/' + path + '/' + applicationData.applicationName);
     this.setState({path: currentPath.payload});
   }
@@ -310,8 +321,8 @@ class ApplicationNode extends Component {
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name" onClick={this.toggle}>
-          {applicationData.applicationName} <Expander expanded={this.state.expanded} />
+        <div className="hierarchy-name">
+          <Expander expanded={this.state.expanded} onClick={this.toggle} /> {applicationData.applicationName} 
           { api.isEndpointsPending(applicationData.applicationId) ? <Indicator /> : null }
           <div className="node-details">
             {applicationData.applicationUri} 
@@ -364,6 +375,7 @@ class Supervisor extends Component {
       isPending: false,
       error: undefined
     };
+    this.toggle = this.toggle.bind(this);
   }
 
   toggle = () => {
@@ -383,8 +395,10 @@ class Supervisor extends Component {
 
     return (
       <div className="hierarchy-level">
-        <div className="hierarchy-name" onClick={this.toggle}>
-          {supervisorsData.id} <Expander expanded={this.state.expanded} />
+        <div className="hierarchy-name" >
+          <Expander expanded={this.state.expanded} onClick={this.toggle} />
+          {" "} 
+          {supervisorsData.id} 
           { api.isApplicationsPending() ? <Indicator /> : null }
         </div>
         {
@@ -419,7 +433,6 @@ const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpoint
     filteredEndpoints={filteredEndpoints}
     t={t} />
 ));
-
 
 export class Start extends Component {
   constructor(props) {

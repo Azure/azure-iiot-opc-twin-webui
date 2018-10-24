@@ -24,7 +24,6 @@ $borderColor: $bgColorHover; //#005e8c;
 
     .hierarchy-name {
       padding: 5px;
-      cursor: pointer;
       display: inline-block;
       width: 80%;
     }
@@ -57,6 +56,12 @@ $borderColor: $bgColorHover; //#005e8c;
   .btn-scan:focus { 
     outline: none; 
   }
+
+  .node-name {
+    cursor: pointer;
+    display: inline-block;
+    width: 80%;
+  }
 }
 
 .text-path {
@@ -68,4 +73,9 @@ $borderColor: $bgColorHover; //#005e8c;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.expander {
+  display: inline-block; 
+  cursor: pointer;
 }
