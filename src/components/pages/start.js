@@ -426,7 +426,7 @@ class Supervisor extends Component {
         () => {
           this.setState({ scanStatus: event.target.value })
         },
-        error => this.setErrorState(error)
+        error => this.setState(error)
       );
   }
 
@@ -457,8 +457,8 @@ class Supervisor extends Component {
           <ToggleBtn
             value={scanStatus}
             onChange={this.toggleScan}>
-            {'Scan '}
-            {scanStatus ? 'On' : 'Off'}
+            {t('scanButton.label')}
+            {scanStatus ? t('scanButton.on') : t('scanButton.off')}
           </ToggleBtn>
         </div> 
         {
