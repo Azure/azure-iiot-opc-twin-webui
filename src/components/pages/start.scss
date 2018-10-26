@@ -51,6 +51,13 @@ $borderColor: $bgColorHover; //#005e8c;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    .toggle-scan {
+      display: inline-block;
+      float: right;
+      margin-right: 40px;
+      @include rem-font-size(14px);
+    }
   }
 
   .btn-scan:focus { 

@@ -9,7 +9,8 @@ import {
   PageContent, 
   Radio,
   Btn,
-  RefreshBar
+  RefreshBar,
+  ToggleBtn
 } from 'components/shared';
 
 import { isDef } from 'utilities';
@@ -24,7 +25,9 @@ import {
 import { EndpointDropdown } from 'components/app/endpointDropdown';
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
-import { toScanModel } from 'services/models';
+import { 
+  toScanSupervisorModel
+} from 'services/models';
 import './start.css';
 
 class NodeApi {
@@ -58,7 +61,7 @@ class NodeApi {
   fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
   fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
   fetchTwins = () => this.componentRef.props.fetchTwins();
-  fetchSupervisors = () => this.componentRef.props.fetchSupervisors();
+  fetchSupervisors = (onlyServerState) => this.componentRef.props.fetchSupervisors(onlyServerState);
   fetchPath = (path) => this.componentRef.props.fetchPath(path);
 }
 
@@ -385,9 +388,19 @@ class Supervisor extends Component {
     this.state = { 
       expanded: false,
       isPending: false,
-      error: undefined
+      error: undefined,
+      scanStatus: undefined
     };
-    this.toggle = this.toggle.bind(this);
+  }
+
+  componentDidMount () {
+      this.checkScan(null);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (nextProps.supervisorsData.discovery !== this.props.supervisorsData.discovery) {
+      this.checkScan(nextProps.supervisorsData);
+    }
   }
 
   toggle = () => {
@@ -401,9 +414,36 @@ class Supervisor extends Component {
     api.fetchPath('/' + supervisorsData.id);
   }
 
+  toggleScan = (event) => {
+    const { supervisorsData } = this.props;
+    const data = {};
+
+    data.id = supervisorsData.id;
+    data.discovery = event.target.value ? 'Fast' : 'Off';
+
+    this.subscription = OpcTwinService.updateSupervisor(JSON.stringify(toScanSupervisorModel(data), null, 2))
+      .subscribe(
+        () => {
+          this.setState({ scanStatus: event.target.value })
+        },
+        error => this.setErrorState(error)
+      );
+  }
+
+  checkScan = (newState) => {
+    const { supervisorsData } = this.props;
+
+    if (newState === null) {
+      supervisorsData.discovery === "Off" || supervisorsData.discovery === undefined ? this.setState({ scanStatus: false }) : this.setState({ scanStatus: true })
+    } else {
+      newState.discovery === "Off" || newState.discovery === undefined ? this.setState({ scanStatus: false }) : this.setState({ scanStatus: true })
+    }
+  }
+
   render() {
     const { t, supervisorsData, api, applicationData, twins, endpointFilter, filteredEndpoints, refresh } = this.props;
-    const error = api.isApplicationsError();
+    const { scanStatus } = this.state;
+    const error = api.isApplicationsError(); 
 
     return (
       <div className="hierarchy-level">
@@ -413,6 +453,14 @@ class Supervisor extends Component {
           {supervisorsData.id} 
           { api.isApplicationsPending() ? <Indicator /> : null }
         </div>
+        <div className="toggle-scan">  
+          <ToggleBtn
+            value={scanStatus}
+            onChange={this.toggleScan}>
+            {'Scan '}
+            {scanStatus ? 'On' : 'Off'}
+          </ToggleBtn>
+        </div> 
         {
           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
         }
@@ -461,22 +509,14 @@ export class Start extends Component {
   };
 
   componentDidMount () {
-    this.props.fetchSupervisors();
+    this.props.fetchSupervisors('true');
   }
 
   refresh = () => {
-    this.props.fetchSupervisors();
+    this.props.fetchSupervisors('true');
     this.props.fetchPath('');
     this.setState({lastRefreshed: moment() });
     this.setState({refresh: !this.state.refresh });
-  }
-
-  startScan = () => {
-    this.subscription = OpcTwinService.scanServers(JSON.stringify(toScanModel("Fast"), null, 2))
-      .subscribe(
-        () => {},
-        error => this.setState({ error })
-      );
   }
 
   render() {
@@ -490,7 +530,6 @@ export class Start extends Component {
           onChange={this.props.updateEndpointFilter}
           value={endpointFilter}
           t={t} />
-        <Btn className="btn-scan" onClick={this.startScan}>{t('scan')}</Btn>
         <RefreshBar  
           refresh={this.refresh}
           time={lastRefreshed}
@@ -498,7 +537,6 @@ export class Start extends Component {
           t={t} /> 
       </ContextMenu>,
       <PageContent className="start-container" key="page-content">
-        
         { this.nodeApi.isSupervisorsPending() && <Indicator /> }
         <SupervisorList 
            supervisorsData={supervisors} 
