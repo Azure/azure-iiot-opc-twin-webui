@@ -23,13 +23,22 @@ $borderColor: $bgColorHover; //#005e8c;
     }
 
     .hierarchy-name {
-      padding: 5px;
+      padding: 5px 5px 5px 0px;
       display: inline-block;
       width: 80%;
     }
 
+    .hierarchy-space {
+      padding: 5px 5px 5px 16px;
+      display: inline-block;
+    }
+
+    .radio-container {
+      padding-left: 3px;
+    }
+
     .node-details {
-      padding-left: 5px;
+      padding-left: 21px;
       @include rem-font-size(14px);
     }
 
@@ -85,4 +94,16 @@ $borderColor: $bgColorHover; //#005e8c;
 .expander {
   display: inline-block; 
   cursor: pointer;
+  padding-right: 8px;
+}
+
+.tree-view-expander svg{
+  @include rem-fallback(margin-top, 6px);
+  @include square-px-rem(12px);
+}
+
+.tree-view-expander-open svg{
+  @include rem-fallback(margin-top, 6px);
+  @include rem-fallback(margin-right, 3px);
+  @include square-px-rem(9px);
 }
