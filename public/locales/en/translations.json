@@ -45,5 +45,10 @@
   "endpointFilter": {
     "all": "All Endpoints",
     "secure": "Most Secure Endpoint"
+  },
+  "scanButton": {
+    "label": "Scan ",
+    "on": "On",
+    "off": "Off"
   }
 }

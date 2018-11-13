@@ -10,10 +10,11 @@ import {
   Radio,
   Btn,
   RefreshBar,
-  ToggleBtn
+  ToggleBtn,
+  Svg
 } from 'components/shared';
 
-import { isDef } from 'utilities';
+import { svgs, isDef } from 'utilities';
 import { 
   pendingApplications,
   pendingSupervisors, 
@@ -69,7 +70,13 @@ export class Expander extends Component {
 
   render() {
     return (
-      <div className="expander" onClick={this.props.onClick}>[{ this.props.expanded ? '-' : '+'}] </div>
+      //<div className="expander" onClick={this.props.onClick}>[{ this.props.expanded ? '-' : '+'}] </div>
+      <div className="expander" onClick={this.props.onClick}>
+        { this.props.expanded 
+          ? <Svg className="tree-view-expander-open" path={svgs.TreeArrowOpen}/> 
+          : <Svg className="tree-view-expander" path={svgs.TreeArrowClose}/>
+        }
+      </div>
     )
   }
 } 
@@ -142,7 +149,7 @@ class DataNode extends Component {
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name" >
-          { data.children ? <Expander expanded={this.state.expanded} onClick={this.toggle} /> : null } {" "}
+          { data.children ? <Expander expanded={this.state.expanded} onClick={this.toggle} /> : <div className="hierarchy-space"/> }
           <div className="node-name" onClick={this.onClickAction}>{ data.displayName } </div> 
           { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
         </div>
@@ -245,12 +252,16 @@ class EndpointNode extends Component {
     return (
       <div className="hierarchy-level">
         {
-          <Radio checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
+          <Radio className="radio-container" checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
             <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
           </Radio>
         }
         <div className="hierarchy-name">
-          {this.isActive() && <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>} {data.endpoint.url} 
+          {this.isActive() 
+            ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
+            : <div className="hierarchy-space"/>
+          } 
+          {data.endpoint.url} 
           { api.isNodePending(data.id) ? <Indicator /> : null }
         </div>
         <div className="node-details">
@@ -336,7 +347,7 @@ class ApplicationNode extends Component {
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name">
-          <Expander expanded={this.state.expanded} onClick={this.toggle} /> {applicationData.applicationName} 
+          <Expander expanded={this.state.expanded} onClick={this.toggle} />{applicationData.applicationName} 
           { api.isEndpointsPending(applicationData.applicationId) ? <Indicator /> : null }
           <div className="node-details">
             {applicationData.applicationUri} 
@@ -426,7 +437,7 @@ class Supervisor extends Component {
         () => {
           this.setState({ scanStatus: event.target.value })
         },
-        error => this.setErrorState(error)
+        error => this.setState(error)
       );
   }
 
@@ -449,7 +460,6 @@ class Supervisor extends Component {
       <div className="hierarchy-level">
         <div className="hierarchy-name" >
           <Expander expanded={this.state.expanded} onClick={this.toggle} />
-          {" "} 
           {supervisorsData.id} 
           { api.isApplicationsPending() ? <Indicator /> : null }
         </div>
@@ -457,8 +467,8 @@ class Supervisor extends Component {
           <ToggleBtn
             value={scanStatus}
             onChange={this.toggleScan}>
-            {'Scan '}
-            {scanStatus ? 'On' : 'Off'}
+            {t('scanButton.label')}
+            {scanStatus ? t('scanButton.on') : t('scanButton.off')}
           </ToggleBtn>
         </div> 
         {
