@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import { translate } from 'react-i18next';
 import { connect } from 'react-redux';
-
+import { translate } from 'react-i18next';
 import { Start } from './start';
 import { 
+  redux as appRedux,
   epics,
   getApplications,
   getEndpoints,
@@ -13,7 +13,11 @@ import {
   getPendingStates,
   getReferences,
   getErrors,
-  getTwins
+  getTwins,
+  getSupervisors,
+  getPaths,
+  getEndpointFilter,
+  getFilteredEndpoints
 } from 'store/reducers/appReducer';
 
 const mapStateToProps = state => ({
@@ -24,17 +28,24 @@ const mapStateToProps = state => ({
   pendingStates: getPendingStates(state),
   references: getReferences(state),
   errors: getErrors(state),
-  twins: getTwins(state)
+  twins: getTwins(state),
+  supervisors: getSupervisors(state),
+  path: getPaths(state),
+  endpointFilter: getEndpointFilter(state),
+  filteredEndpoints: getFilteredEndpoints(state)
 });
 
 const mapDispatchToProps = dispatch => {
   window.savedDispatch = dispatch;
   window.savedEpics = epics;
   return {
-    fetchApplications: () => dispatch(epics.actions.fetchApplications()),
+    fetchApplications: (supervisor) => dispatch(epics.actions.fetchApplications(supervisor)),
     fetchEndpoints: (applicationId) => dispatch(epics.actions.fetchEndpoints(applicationId)),
     fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId })),
-    fetchTwins: () => dispatch(epics.actions.fetchTwins())
+    fetchTwins: () => dispatch(epics.actions.fetchTwins()),
+    fetchSupervisors: (onlyServerState) => dispatch(epics.actions.fetchSupervisors(onlyServerState)),
+    fetchPath: (path) => dispatch(epics.actions.fetchPath(path)),
+    updateEndpointFilter: endpointFilter => dispatch(appRedux.actions.updateEndpointFilter(endpointFilter))
   };
 }
 

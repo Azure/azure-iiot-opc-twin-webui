@@ -73,4 +73,18 @@ export class OpcTwinService {
   static deleteApplication(applicationId) {
     return HttpClient.delete(`${ENDPOINT_REGISTRY}/v1/applications/${applicationId}`);
   }
+
+  static getSupervisorsList(serverState) {
+    const serverStateString = serverState ? `?onlyServerState=${encodeURIComponent(serverState)}` : '';
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${serverStateString}`, undefined, false)
+      .map(getItems);
+  }
+
+  static getSupervisor(id) {
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${id}`, undefined, false);
+  }
+
+  static updateSupervisor(payload) {
+    return HttpClient.patch(`${ENDPOINT_REGISTRY}/v1/supervisors`, payload);
+  }
 }

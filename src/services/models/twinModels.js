@@ -30,6 +30,7 @@ export const toCallNodeMethodModel = (params = {}, nodeId, values) => {
     return request;
 };
 
-export const toScanModel = (mode) => ({
-    discovery: mode
+export const toScanSupervisorModel = (params = {}) => ({
+    id: params.id,
+    discovery: params.discovery
 });

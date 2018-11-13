@@ -31,7 +31,19 @@
     "options": {
       "read": "Read",
       "write": "Write",
-      "call": "call"
+      "call": "Call"
+    },
+    "validation": {
+      "required": "Parameter is required",
+      "NaN": "Input must be a number"
     }
+  },
+  "refreshBar": {
+    "refreshing": "Refreshing",
+    "lastRefreshed": "Last refreshed"
+  },
+  "endpointFilter": {
+    "all": "All Endpoints",
+    "secure": "Most Secure Endpoint"
   }
 }

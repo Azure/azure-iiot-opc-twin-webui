@@ -24,7 +24,6 @@ $borderColor: $bgColorHover; //#005e8c;
 
     .hierarchy-name {
       padding: 5px;
-      cursor: pointer;
       display: inline-block;
       width: 80%;
     }
@@ -39,15 +38,51 @@ $borderColor: $bgColorHover; //#005e8c;
       @include rem-font-size(14px);
     }
 
-    .btn-scan:focus { 
-      outline: none; 
-    }
-
     .btn-delete-container {
       padding-top: 24px;
       display: inline-block; 
       float: right;
       right: 50px;
     }
+
+    .node-value {
+      width: 400px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .toggle-scan {
+      display: inline-block;
+      float: right;
+      margin-right: 40px;
+      @include rem-font-size(14px);
+    }
   }
+
+  .btn-scan:focus { 
+    outline: none; 
+  }
+
+  .node-name {
+    cursor: pointer;
+    display: inline-block;
+    width: 80%;
+  }
+}
+
+.text-path {
+  position: absolute;
+  text-align: left;
+  font-size: 14px;
+  margin-top: 15px;
+  left: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expander {
+  display: inline-block; 
+  cursor: pointer;
 }
