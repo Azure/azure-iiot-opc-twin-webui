@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft. All rights reserved.
+const baseUrl = process.env.REACT_APP_BASE_SERVICE_URL || 'http://localhost';
 
 const Config = {
+  serviceUrls: {
+    registry: `${baseUrl}:9042/v1/`,
+    opcTwin: `${baseUrl}:9041/v1/`
+  },
   // Constants
   retryWaitTime: 2000, // On retryable error, retry after 2s
   maxRetryAttempts: 2,

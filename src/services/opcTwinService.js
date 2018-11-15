@@ -3,9 +3,10 @@
 import { HttpClient } from './httpClient';
 import { getItems } from 'utilities';
 import { toReadValueModel } from './models';
+import Config from 'app.config';
 
-const ENDPOINT_REGISTRY = 'http://localhost:9042/v1/';
-const ENDPOINT_OPC_TWIN = 'http://localhost:9041/v1/';
+const ENDPOINT_REGISTRY = Config.serviceUrls.registry;
+const ENDPOINT_OPC_TWIN = Config.serviceUrls.opcTwin;
 
 /**
  * Contains methods for calling the device simulation microservice

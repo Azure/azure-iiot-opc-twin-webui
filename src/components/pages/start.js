@@ -11,66 +11,20 @@ import {
   Btn,
   RefreshBar,
   ToggleBtn,
-  Svg
+  Svg,
+  NodeApi
 } from 'components/shared';
 
 import { svgs, isDef } from 'utilities';
-import { 
-  pendingApplications,
-  pendingSupervisors, 
-  pendingEndpoints, 
-  pendingNode, 
-  pendingRead
-} from 'store/reducers/appReducer';
-
 import { EndpointDropdown } from 'components/app/endpointDropdown';
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
-import { 
-  toScanSupervisorModel
-} from 'services/models';
+import { toScanSupervisorModel } from 'services/models';
 import './start.css';
 
-class NodeApi {
-  constructor(componentRef) {
-    this.componentRef = componentRef;
-  }
-
-  // Selectors
-  getEndpoint = (id) => this.componentRef.props.endpoints[id];
-  getNode = (endpointId, nodeId) =>
-    endpointId && nodeId
-      ? this.componentRef.props.nodes[endpointId][nodeId]
-      : undefined;
-  getReferences = (endpointId, nodeId = 'ROOT') => this.componentRef.props.references[endpointId][nodeId];
-
-  isError = (flagName) => this.componentRef.props.errors[flagName];
-  isPending = (flagName) => this.componentRef.props.pendingStates[flagName];
-
-  isNodeError = (endpointId, nodeId) => this.isError(pendingNode(endpointId, nodeId));
-  isEndpointsError = (applicationId) => this.isError(pendingEndpoints(applicationId));
-  isApplicationsError = () => this.isError(pendingApplications());
-
-  isNodePending = (endpointId, nodeId) => this.isPending(pendingNode(endpointId, nodeId));
-  isEndpointsPending = (applicationId) => this.isPending(pendingEndpoints(applicationId));
-  isApplicationsPending = () => this.isPending(pendingApplications());
-  isSupervisorsPending = () => this.isPending(pendingSupervisors());
-  isReadPending = () => this.isPending(pendingRead());
-
-  // Action creator wrappers
-  fetchApplications = (supervisor) => this.componentRef.props.fetchApplications(supervisor);
-  fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
-  fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
-  fetchTwins = () => this.componentRef.props.fetchTwins();
-  fetchSupervisors = (onlyServerState) => this.componentRef.props.fetchSupervisors(onlyServerState);
-  fetchPath = (path) => this.componentRef.props.fetchPath(path);
-}
-
 export class Expander extends Component {
-
   render() {
     return (
-      //<div className="expander" onClick={this.props.onClick}>[{ this.props.expanded ? '-' : '+'}] </div>
       <div className="expander" onClick={this.props.onClick}>
         { this.props.expanded 
           ? <Svg className="tree-view-expander-open" path={svgs.TreeArrowOpen}/> 
@@ -117,7 +71,6 @@ class DataNode extends Component {
     const { data, api, endpoint, path } = this.props;
 
     if (data.children){
-      // TODO: Prevent calling again if pending state is active
       if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
       this.setState({ expanded: !this.state.expanded });
     }
@@ -204,7 +157,7 @@ class EndpointNode extends Component {
 
   toggle = () => {
     const { data, api, path } = this.props;
-    // TODO: Prevent calling again if pending state is active
+
     if (!isDef(api.getReferences(data.id))) api.fetchNode(data.id);
     this.setState({ expanded: !this.state.expanded });
 
@@ -321,7 +274,7 @@ class ApplicationNode extends Component {
 
   toggle = () => {
     const { applicationData, api, path } = this.props;
-    // TODO: Prevent calling again if pending state is active
+
     if (!isDef(applicationData.endpoints)) api.fetchEndpoints(applicationData.applicationId);
     this.setState({ expanded: !this.state.expanded });
 
@@ -398,7 +351,6 @@ const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filt
     t={t}
     refresh={refresh} />
 ));
-
 class Supervisor extends Component {
   constructor(props) {
     super(props);
@@ -511,7 +463,7 @@ const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpoint
     filteredEndpoints={filteredEndpoints}
     t={t}
     refresh={refresh} />
-));
+)); 
 
 export class Start extends Component {
   constructor(props) {
