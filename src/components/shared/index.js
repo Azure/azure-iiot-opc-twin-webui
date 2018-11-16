@@ -10,3 +10,4 @@ export * from './contextMenu';
 export * from './pageContent/pageContent';
 export * from './refreshBar/refreshBar';
 export * from './node/nodeApi';
+export * from './expander/expander';

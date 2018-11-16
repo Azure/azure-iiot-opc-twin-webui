@@ -11,29 +11,16 @@ import {
   Btn,
   RefreshBar,
   ToggleBtn,
-  Svg,
-  NodeApi
+  NodeApi, 
+  Expander
 } from 'components/shared';
 
-import { svgs, isDef } from 'utilities';
+import { isDef } from 'utilities';
 import { EndpointDropdown } from 'components/app/endpointDropdown';
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
 import { toScanSupervisorModel } from 'services/models';
 import './start.css';
-
-export class Expander extends Component {
-  render() {
-    return (
-      <div className="expander" onClick={this.props.onClick}>
-        { this.props.expanded 
-          ? <Svg className="tree-view-expander-open" path={svgs.TreeArrowOpen}/> 
-          : <Svg className="tree-view-expander" path={svgs.TreeArrowClose}/>
-        }
-      </div>
-    )
-  }
-} 
 
 const closedFlyoutState = { openFlyoutName: undefined };
 

@@ -1,5 +1,5 @@
 
-Create PCS App
+OpcTwin App
 ==================================
 ## Getting started
 1. Install [node.js](https://nodejs.org/)
@@ -12,7 +12,7 @@ Create PCS App
 ### 3. Environment variables required to run the Web UI
 In order to run the Web UI, the environment variables need to be created at least once. More information on configuring environment variables [here](#configuration-and-environment-variables).
 
-* `REACT_APP_BASE_SERVICE_URL` = {your-remote-monitoring-endpoint}
+* `REACT_APP_BASE_SERVICE_URL` = {your-opc-twin-endpoint}
 
 Build, run and test locally
 ===========================
@@ -54,10 +54,3 @@ You can find a guide to using it [here](https://github.com/facebookincubator/cre
 - [SASS](http://sass-lang.com/)
 - [React-i18nnext](https://github.com/i18next/react-i18next)
 
-[build-badge]: https://img.shields.io/travis/Azure/pcs-remote-monitoring-webui.svg
-[build-url]: https://travis-ci.org/Azure/pcs-remote-monitoring-webui
-[issues-badge]: https://img.shields.io/github/issues/azure/pcs-remote-monitoring-webui.svg
-[issues-url]: https://github.com/Azure/pcs-remote-monitoring-webui/issues/new
-[gitter-badge]: https://img.shields.io/gitter/room/azure/iot-solutions.js.svg
-[gitter-url]: https://gitter.im/azure/iot-solutions
-[windows-envvars-howto-url]: https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10
