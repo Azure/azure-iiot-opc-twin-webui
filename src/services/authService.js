@@ -1,34 +1,28 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 import AuthenticationContext from 'adal-angular/dist/adal.min'
-import { Observable } from 'rxjs';
+import Config from 'app.config';
 
 export class AuthService {
 
-  static authContext; // Created on AuthService.initialize()
-  static authEnabled = true;
-  static aadInstance = '';
-  static appId = '00000000-0000-0000-0000-000000000000';
-  static tenantId = '00000000-0000-0000-0000-000000000000';
-  static clientId = '00000000-0000-0000-0000-000000000000';
-
   static initialize() {
-    if (typeof global.DeploymentConfig === 'undefined') {
-      alert('The dashboard configuration is missing.\n\nVerify the content of webui-config.js.');
-      throw new Error('The global configuration is missing. Verify the content of webui-config.js.');
+    const {
+      aadTenant,
+      aadAppId,
+      aadAudience,
+      aadInstance
+    } = Config;
+
+    AuthService.authEnabled = (aadTenant && aadAppId && aadAudience && true) || false;
+
+    if (!AuthService.authEnabled) {
+      return;
     }
 
-    if (typeof global.DeploymentConfig.authEnabled !== 'undefined') {
-      AuthService.authEnabled = global.DeploymentConfig.authEnabled;
-      if (!AuthService.authEnabled) {
-        console.warn('Auth is disabled! (see webui-config.js)');
-      }
-    }
-
-    AuthService.tenantId = global.DeploymentConfig.aad.tenant;
-    AuthService.clientId = global.DeploymentConfig.aad.appId;
-    AuthService.appId = global.DeploymentConfig.aad.appId;
-    AuthService.aadInstance = global.DeploymentConfig.aad.instance;
+    AuthService.tenantId = aadTenant;
+    AuthService.clientId = aadAppId;
+    AuthService.appId = aadAudience;
+    AuthService.aadInstance = aadInstance;
 
     if (AuthService.aadInstance && AuthService.aadInstance.endsWith('{0}')) {
       AuthService.aadInstance = AuthService.aadInstance.substr(0, AuthService.aadInstance.length - 3);
@@ -91,10 +85,12 @@ export class AuthService {
   static getUserName(callback) {
     if (AuthService.isDisabled()) return;
 
-    if (AuthService.authContext.getCachedUser()) {
-      Observable.of({ Name: 'Temp Name', Email: 'temp.name@contoso.com' })
-        .map(data => data ? { Name: data.Name, Email: data.Email } : null)
-        .subscribe(callback);
+    const user = AuthService.authContext.getCachedUser();
+    if (user) {
+      callback({
+        Name: user.profile.name,
+        Email: user.profile.upn
+      });
     } else {
       console.log('The user is not signed in');
       AuthService.authContext.login();

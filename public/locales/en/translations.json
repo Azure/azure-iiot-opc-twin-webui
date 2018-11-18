@@ -50,5 +50,13 @@
     "label": "Scan ",
     "on": "On",
     "off": "Off"
+  },
+  "explorerLabel": {
+    "supervisor": "Supervisor:",
+    "server": "Server:",
+    "endpoint": "Endpoint:",
+    "node": "Node:",
+    "nodeType": "node type: ",
+    "value": " Value: "
   }
 }

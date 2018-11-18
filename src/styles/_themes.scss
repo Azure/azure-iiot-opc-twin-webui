@@ -6,6 +6,18 @@
 
 $themes: (
   dark: (
+     // Lows
+     colorLowestFirst: $colorNoir,
+     colorLowestSecond: $colorMidnight,
+     colorLowestThird: $colorCharcoal,
+     // Mids
+     colorMidFirst: $colorAsh,
+     colorMidSecond: $colorLead,
+     colorMidThird: $colorGraphite,
+     // Highs
+     colorLightestFirst: $colorSmoke,
+     colorLightestSecond: $colorStone,
+     colorHighest: $colorWhite,
     // Functional colors
     colorAlert: $colorAlert,
     colorWarning: $colorWarning,
@@ -158,6 +170,18 @@ $themes: (
     // Forms - END
   ),
   light: (
+    // Lows
+    colorLowestFirst: $colorWhite,
+    colorLowestSecond: $colorMagnesium,
+    colorLowestThird: $colorAluminum,
+    // Mids
+    colorMidFirst: $colorSterling,
+    colorMidSecond: $colorNickel,
+    colorMidThird: $colorSilver,
+    // Highs
+    colorLightestFirst: $colorBurnished,
+    colorLightestSecond: $colorPlatinum,
+    colorHighest: $colorStephanite,
     // Functional colors
     colorAlert: $colorAlert,
     colorWarning: #f4ca2c,

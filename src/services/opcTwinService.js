@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-import Config from 'app.config';
-
 import { HttpClient } from './httpClient';
 import { getItems } from 'utilities';
 import { toReadValueModel } from './models';
+import Config from 'app.config';
 
 const ENDPOINT_REGISTRY = Config.serviceUrls.registry || 'http://localhost:9042';
 const ENDPOINT_TWINS = Config.serviceUrls.twins || 'http://localhost:9041';
@@ -55,15 +54,15 @@ export class OpcTwinService {
   }
 
   static getTwins() {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/twins`, undefined, false);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/endpoints`, undefined, false);
   }
 
   static activateTwin(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/twins/activate/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/endpoints/${endpointId}/activate`, payload);
   }
 
   static deactivateTwin(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/twins/deactivate/${endpointId}`, payload);
+    return HttpClient.post(`${ENDPOINT_REGISTRY}/v1/endpoints/${endpointId}/deactivate`, payload);
   }
 
   static scanServers(payload) {

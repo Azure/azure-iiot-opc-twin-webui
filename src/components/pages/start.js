@@ -11,75 +11,16 @@ import {
   Btn,
   RefreshBar,
   ToggleBtn,
-  Svg
+  NodeApi, 
+  Expander
 } from 'components/shared';
 
-import { svgs, isDef } from 'utilities';
-import { 
-  pendingApplications,
-  pendingSupervisors, 
-  pendingEndpoints, 
-  pendingNode, 
-  pendingRead
-} from 'store/reducers/appReducer';
-
+import { isDef } from 'utilities';
 import { EndpointDropdown } from 'components/app/endpointDropdown';
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
 import { OpcTwinService } from 'services';
-import { 
-  toScanSupervisorModel
-} from 'services/models';
+import { toScanSupervisorModel } from 'services/models';
 import './start.css';
-
-class NodeApi {
-  constructor(componentRef) {
-    this.componentRef = componentRef;
-  }
-
-  // Selectors
-  getEndpoint = (id) => this.componentRef.props.endpoints[id];
-  getNode = (endpointId, nodeId) =>
-    endpointId && nodeId
-      ? this.componentRef.props.nodes[endpointId][nodeId]
-      : undefined;
-  getReferences = (endpointId, nodeId = 'ROOT') => this.componentRef.props.references[endpointId][nodeId];
-
-  isError = (flagName) => this.componentRef.props.errors[flagName];
-  isPending = (flagName) => this.componentRef.props.pendingStates[flagName];
-
-  isNodeError = (endpointId, nodeId) => this.isError(pendingNode(endpointId, nodeId));
-  isEndpointsError = (applicationId) => this.isError(pendingEndpoints(applicationId));
-  isApplicationsError = () => this.isError(pendingApplications());
-
-  isNodePending = (endpointId, nodeId) => this.isPending(pendingNode(endpointId, nodeId));
-  isEndpointsPending = (applicationId) => this.isPending(pendingEndpoints(applicationId));
-  isApplicationsPending = () => this.isPending(pendingApplications());
-  isSupervisorsPending = () => this.isPending(pendingSupervisors());
-  isReadPending = () => this.isPending(pendingRead());
-
-  // Action creator wrappers
-  fetchApplications = (supervisor) => this.componentRef.props.fetchApplications(supervisor);
-  fetchEndpoints = (applicationId) => this.componentRef.props.fetchEndpoints(applicationId);
-  fetchNode = (endpointId, nodeId) => this.componentRef.props.fetchNode(endpointId, nodeId);
-  fetchTwins = () => this.componentRef.props.fetchTwins();
-  fetchSupervisors = (onlyServerState) => this.componentRef.props.fetchSupervisors(onlyServerState);
-  fetchPath = (path) => this.componentRef.props.fetchPath(path);
-}
-
-export class Expander extends Component {
-
-  render() {
-    return (
-      //<div className="expander" onClick={this.props.onClick}>[{ this.props.expanded ? '-' : '+'}] </div>
-      <div className="expander" onClick={this.props.onClick}>
-        { this.props.expanded 
-          ? <Svg className="tree-view-expander-open" path={svgs.TreeArrowOpen}/> 
-          : <Svg className="tree-view-expander" path={svgs.TreeArrowClose}/>
-        }
-      </div>
-    )
-  }
-} 
 
 const closedFlyoutState = { openFlyoutName: undefined };
 
@@ -117,7 +58,6 @@ class DataNode extends Component {
     const { data, api, endpoint, path } = this.props;
 
     if (data.children){
-      // TODO: Prevent calling again if pending state is active
       if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
       this.setState({ expanded: !this.state.expanded });
     }
@@ -138,7 +78,7 @@ class DataNode extends Component {
   }
 
   render() {
-    const { data, api, endpoint } = this.props;
+    const { data, api, endpoint, label, t } = this.props;
     const { path } = this.state;
     const targets = (api.getReferences(endpoint, data.id) || [])
       .map(targetId => api.getNode(endpoint, targetId));
@@ -148,6 +88,9 @@ class DataNode extends Component {
 
     return (
       <div className="hierarchy-level">
+        {
+          label !== undefined ? <div>{label}</div> : null
+        }
         <div className="hierarchy-name" >
           { data.children ? <Expander expanded={this.state.expanded} onClick={this.toggle} /> : <div className="hierarchy-space"/> }
           <div className="node-name" onClick={this.onClickAction}>{ data.displayName } </div> 
@@ -156,10 +99,10 @@ class DataNode extends Component {
         <div className="node-details">
           { data.description }
           <div>
-            {"node type: "}
+            {t('explorerLabel.nodeType')}
             {data.nodeClass}
             <div className="node-value"> 
-              {data.value !== undefined && data.children === false  && <label>{' Value: '}{String(data.value)}</label> }
+              {data.value !== undefined && data.children === false  && <label>{t('explorerLabel.value')}{String(data.value)}</label> }
             </div>
           </div>
         </div>
@@ -168,7 +111,7 @@ class DataNode extends Component {
         }
         {
           this.state.expanded
-             && <DataNodeList data={targets} api={api} endpoint={endpoint} path={path} />
+             && <DataNodeList data={targets} api={api} endpoint={endpoint} path={path} t={t}/>
         }    
         { browseFlyoutOpen && <ManageBrowseMethodsContainer onClose={this.closeFlyout} endpoint={endpoint} data={data} api={api} /> }     
       </div>
@@ -176,13 +119,14 @@ class DataNode extends Component {
   }
 }
 
-const DataNodeList = ({ data, api, endpoint, path }) => data.map(node => (
+const DataNodeList = ({ data, api, endpoint, path, t }) => data.map(node => (
   <DataNode 
     data={node} 
     api={api} 
     endpoint={endpoint} 
     key={node.id} 
-    path={path} />
+    path={path}
+    t={t} />
 ));
 
 class EndpointNode extends Component {
@@ -200,7 +144,7 @@ class EndpointNode extends Component {
 
   toggle = () => {
     const { data, api, path } = this.props;
-    // TODO: Prevent calling again if pending state is active
+
     if (!isDef(api.getReferences(data.id))) api.fetchNode(data.id);
     this.setState({ expanded: !this.state.expanded });
 
@@ -257,6 +201,7 @@ class EndpointNode extends Component {
           </Radio>
         }
         <div className="hierarchy-name">
+          {t('explorerLabel.endpoint')}<br />
           {this.isActive() 
             ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
             : <div className="hierarchy-space"/>
@@ -276,7 +221,7 @@ class EndpointNode extends Component {
         {
           this.state.expanded
             && rootNode
-            && <DataNode data={rootNode} api={api} endpoint={data.id} path={path}/>
+            && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
         }
       </div>
     );
@@ -316,7 +261,7 @@ class ApplicationNode extends Component {
 
   toggle = () => {
     const { applicationData, api, path } = this.props;
-    // TODO: Prevent calling again if pending state is active
+
     if (!isDef(applicationData.endpoints)) api.fetchEndpoints(applicationData.applicationId);
     this.setState({ expanded: !this.state.expanded });
 
@@ -347,6 +292,7 @@ class ApplicationNode extends Component {
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name">
+          {t('explorerLabel.server')}<br />
           <Expander expanded={this.state.expanded} onClick={this.toggle} />{applicationData.applicationName} 
           { api.isEndpointsPending(applicationData.applicationId) ? <Indicator /> : null }
           <div className="node-details">
@@ -392,7 +338,6 @@ const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filt
     t={t}
     refresh={refresh} />
 ));
-
 class Supervisor extends Component {
   constructor(props) {
     super(props);
@@ -459,6 +404,7 @@ class Supervisor extends Component {
     return (
       <div className="hierarchy-level">
         <div className="hierarchy-name" >
+          {t('explorerLabel.supervisor')}<br />
           <Expander expanded={this.state.expanded} onClick={this.toggle} />
           {supervisorsData.id} 
           { api.isApplicationsPending() ? <Indicator /> : null }
@@ -504,7 +450,7 @@ const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpoint
     filteredEndpoints={filteredEndpoints}
     t={t}
     refresh={refresh} />
-));
+)); 
 
 export class Start extends Component {
   constructor(props) {
@@ -549,7 +495,7 @@ export class Start extends Component {
       <PageContent className="start-container" key="page-content">
         { this.nodeApi.isSupervisorsPending() && <Indicator /> }
         <SupervisorList 
-           supervisorsData={supervisors} 
+          supervisorsData={supervisors} 
           applicationData={applications} 
           api={this.nodeApi} 
           twins={twins} 
