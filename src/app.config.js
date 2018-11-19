@@ -10,6 +10,12 @@ const Config = {
   maxRetryAttempts: 2,
   retryableStatusCodes: new Set([ 0, 502, 503 ]),
   defaultAjaxTimeout: 60000, // 10s
+  nodeProperty: {
+    read: 'Read',
+    write: 'Write',
+    method: 'Method',
+    variable: 'Variable'
+  },
 
   aadTenant: process.env.PCS_WEBUI_AUTH_AAD_TENANT,
   aadAppId: process.env.PCS_WEBUI_AUTH_AAD_APPID,

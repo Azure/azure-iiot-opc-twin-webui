@@ -90,20 +90,3 @@ $borderColor: $bgColorHover; //#005e8c;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.expander {
-  display: inline-block; 
-  cursor: pointer;
-  padding-right: 8px;
-}
-
-.tree-view-expander svg{
-  @include rem-fallback(margin-top, 6px);
-  @include square-px-rem(12px);
-}
-
-.tree-view-expander-open svg{
-  @include rem-fallback(margin-top, 6px);
-  @include rem-fallback(margin-right, 3px);
-  @include square-px-rem(9px);
-}

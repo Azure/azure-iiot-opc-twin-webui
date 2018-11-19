@@ -320,3 +320,6 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# npm install
+package-lock.json
