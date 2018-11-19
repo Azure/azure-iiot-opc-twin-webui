@@ -18,9 +18,10 @@ import {
 import { isDef } from 'utilities';
 import { EndpointDropdown } from 'components/app/endpointDropdown';
 import { ManageBrowseMethodsContainer } from './flyouts/manageBrowseMethods';
-import { OpcTwinService } from 'services';
+import { RegistryService} from 'services';
 import { toScanSupervisorModel } from 'services/models';
 import './start.css';
+import Config from 'app.config';
 
 const closedFlyoutState = { openFlyoutName: undefined };
 
@@ -69,10 +70,10 @@ class DataNode extends Component {
   onClickAction = () => {
     const { data } = this.props;
 
-    if (data.nodeClass === "Method") {
+    if (data.nodeClass === Config.nodeProperty.method) {
       this.openBrowseFlyout();
     }
-    else if (data.nodeClass === "Variable") {
+    else if (data.nodeClass === Config.nodeProperty.variable) {
       this.openBrowseFlyout();
     } 
   }
@@ -158,9 +159,9 @@ class EndpointNode extends Component {
     this.setState({ isPending: true });
 
     if (event.target.value !== "true") {
-      this.subscription = OpcTwinService.activateTwin(data.id)
+      this.subscription = RegistryService.activateTwin(data.id)
       .subscribe(
-        () => {
+        (response) => {
           this.setState({ isPending: false });
           api.fetchTwins();
         },
@@ -168,7 +169,7 @@ class EndpointNode extends Component {
       );
     }
     else {
-      this.subscription = OpcTwinService.deactivateTwin(data.id)
+      this.subscription = RegistryService.deactivateTwin(data.id)
       .subscribe(
         () => {
           this.setState({ isPending: false });
@@ -273,7 +274,7 @@ class ApplicationNode extends Component {
     const { api, supervisorId } = this.props;
 
     this.setState({ isPending: true });
-    this.subscription = OpcTwinService.deleteApplication(applicationId)
+    this.subscription = RegistryService.deleteApplication(applicationId)
       .subscribe(
         () => {
           api.fetchApplications(supervisorId);
@@ -377,7 +378,7 @@ class Supervisor extends Component {
     data.id = supervisorsData.id;
     data.discovery = event.target.value ? 'Fast' : 'Off';
 
-    this.subscription = OpcTwinService.updateSupervisor(JSON.stringify(toScanSupervisorModel(data), null, 2))
+    this.subscription = RegistryService.updateSupervisor(JSON.stringify(toScanSupervisorModel(data), null, 2))
       .subscribe(
         () => {
           this.setState({ scanStatus: event.target.value })

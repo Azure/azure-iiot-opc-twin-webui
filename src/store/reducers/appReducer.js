@@ -3,7 +3,7 @@
 import 'rxjs';
 import { Observable } from 'rxjs';
 import update from 'immutability-helper';
-import { OpcTwinService } from 'services';
+import { TwinService, RegistryService } from 'services';
 import { schema, normalize } from 'normalizr';
 import { isDef } from 'utilities';
 
@@ -37,7 +37,7 @@ export const epics = createEpicScenario({
     type: 'FETCH_APPLICATIONS',
     epic: (fromAction, store) => {
       const pendingFlag = pendingApplications();
-      return OpcTwinService.getApplicationsList()
+      return RegistryService.getApplicationsList()
         .map(toActionCreatorWithPending(redux.actions.updateApplication, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
@@ -47,7 +47,7 @@ export const epics = createEpicScenario({
     type: 'FETCH_ENDPOINTS',
     epic: fromAction => {
       const pendingFlag = pendingEndpoints(fromAction.payload);
-      return OpcTwinService.getApplication(fromAction.payload) // payload = app id
+      return RegistryService.getApplication(fromAction.payload) // payload = app id
         .map(({ application, endpoints }) => ({
           ...application,
           endpoints
@@ -62,7 +62,7 @@ export const epics = createEpicScenario({
     epic: fromAction => {
       const { endpointId, nodeId } = fromAction.payload;
       const pendingFlag = pendingNode(endpointId, nodeId);
-      return OpcTwinService.browseNode(endpointId, nodeId)
+      return TwinService.browseNode(endpointId, nodeId)
         .map(toActionCreatorWithPending(redux.actions.updateRootNode, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
@@ -72,7 +72,7 @@ export const epics = createEpicScenario({
     type: 'FETCH_TWINS',
     epic: fromAction => {
       const pendingFlag = pendingTwins();
-      return OpcTwinService.getTwins()
+      return RegistryService.getTwins()
         .map(toActionCreatorWithPending(redux.actions.updateTwins, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
@@ -82,7 +82,7 @@ export const epics = createEpicScenario({
     type: 'FETCH_SUPERVISORS',
     epic: fromAction => {
       const pendingFlag = pendingSupervisors();
-      return OpcTwinService.getSupervisorsList(fromAction.payload)
+      return RegistryService.getSupervisorsList(fromAction.payload)
         .map(toActionCreatorWithPending(redux.actions.updateSupervisors, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));

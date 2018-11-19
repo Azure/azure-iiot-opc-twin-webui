@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { LinkedComponent, svgs, isDef, Validator } from 'utilities';
-import { OpcTwinService } from 'services';
+import { TwinService } from 'services';
+import Config from 'app.config';
 
 import { 
   FormControl,
@@ -29,6 +30,10 @@ import {
 const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
 const actionType = [];
 const isNumeric = value => !isNaN(parseInt(value, 10));
+
+const READ = 'read';
+const WRITE = 'write';
+const CALL = 'call';
 
 export class ManageBrowseMethods extends LinkedComponent {
 
@@ -68,52 +73,52 @@ export class ManageBrowseMethods extends LinkedComponent {
   apply = (event) => {
     event.preventDefault();
   
-      this.setState({ isPending: true });
+    this.setState({ isPending: true });
 
-      const { endpoint, data, t } = this.props;
+    const { endpoint, data, t } = this.props;
 
-      switch (this.actionLink.value) {
-        case 'read':
-          this.subscription = OpcTwinService.readNodeValue(endpoint, data.id)
-          .subscribe(
-            (response) => {
-              this.setState({ value: response.value })
-              this.setState({ isPending: false });
-            },
-            error => this.setErrorState(error)
-          );
-        break;
-        case 'write':
-          if ((data.dataType.includes('Int') || data.dataType === 'Double') && !isNumeric(this.writeValueLink.value)) {  
+    switch (this.actionLink.value) {
+      case READ:
+        this.subscription = TwinService.readNodeValue(endpoint, data.id)
+        .subscribe(
+          (response) => {
+            this.setState({ value: response.value })
             this.setState({ isPending: false });
-            this.setState({ error: {message: t('browseFlyout.validation.NaN')} });
-            break;
-          }  
+          },
+          error => this.setErrorState(error)
+        );
+      break;
+      case WRITE:
+        if ((data.dataType.includes('Int') || data.dataType === 'Double') && !isNumeric(this.writeValueLink.value)) {  
+          this.setState({ isPending: false });
+          this.setState({ error: {message: t('browseFlyout.validation.NaN')} });
+          break;
+        }  
 
-          this.subscription = OpcTwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, this.writeValueLink.value), null, 2))
-          .subscribe(
-            (response) => {
-              this.setState({ isPending: false });
-            },
-            error => this.setErrorState(error)
-          );
-        break;
-        case 'call':
-          const { metadataCall } = this.state;  
+        this.subscription = TwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, this.writeValueLink.value), null, 2))
+        .subscribe(
+          (response) => {
+            this.setState({ isPending: false });
+          },
+          error => this.setErrorState(error)
+        );
+      break;
+      case CALL:
+        const { metadataCall } = this.state;  
 
-          this.subscription = OpcTwinService.callNodeMethod(endpoint, JSON.stringify(toCallNodeMethodModel(metadataCall, data.id, this.argumentLinks), null, 2))
-          .subscribe(
-            (response) => {
-              this.setState({ value: response.value });
-              this.setState({ isPending: false });
-            },
-            error => this.setErrorState(error)
-          );
-        break;
-        default:
-        break;
-      }
-      this.setState({ changesApplied: true });
+        this.subscription = TwinService.callNodeMethod(endpoint, JSON.stringify(toCallNodeMethodModel(metadataCall, data.id, this.argumentLinks), null, 2))
+        .subscribe(
+          (response) => {
+            this.setState({ value: response.value });
+            this.setState({ isPending: false });
+          },
+          error => this.setErrorState(error)
+        );
+      break;
+      default:
+      break;
+    }
+    this.setState({ changesApplied: true });
   }
 
   checkAccessLevel = () => {
@@ -122,16 +127,16 @@ export class ManageBrowseMethods extends LinkedComponent {
     actionType.length = 0;
     this.state = { isAccessible: true };
  
-    if (data.nodeClass === "Method")
+    if (data.nodeClass === Config.nodeProperty.method)
     {
-      actionType.push('call');
+      actionType.push(CALL);
     }
     else if (data.accessLevel !== undefined) {
-      if (data.accessLevel.includes("Read")) {
-        actionType.push('read');
+      if (data.accessLevel.includes(Config.nodeProperty.read)) {
+        actionType.push(READ);
       }
-      if (data.accessLevel.includes("Write")) {
-        actionType.push('write');
+      if (data.accessLevel.includes(Config.nodeProperty.write)) {
+        actionType.push(WRITE);
       }
     }
     else {
@@ -144,23 +149,23 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   isWrite () {
-    return this.actionLink.value === "write"; 
+    return this.actionLink.value === WRITE; 
   }
 
   isRead () {
-    return this.actionLink.value === "read"; 
+    return this.actionLink.value === READ; 
   }
 
   isCall () {
-    return this.actionLink.value === "call"; 
+    return this.actionLink.value === CALL; 
   }
 
   getCallMetadata () {
     const { endpoint, data } = this.props;
     const { inputArguments } = this.state;
 
-    if ((this.actionLink.value === "call") && !isDef(inputArguments))  {
-      this.subscription = OpcTwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
+    if ((this.actionLink.value === CALL) && !isDef(inputArguments))  {
+      this.subscription = TwinService.callNodeMethodMetadata(endpoint, JSON.stringify(toCallNodeMethodMetadataModel(data), null, 2))
         .subscribe(
           (response) => {
             this.setState({ inputArguments: response.inputArguments });

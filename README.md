@@ -1,5 +1,5 @@
 
-OpcTwin App
+Opc UA Device Management
 ==================================
 ## Getting started
 1. Install [node.js](https://nodejs.org/)

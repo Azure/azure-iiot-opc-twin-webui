@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-@import 'styles/mixins';
+@import 'src/styles/mixins';
 
 .expander {
     display: inline-block; 
@@ -10,7 +10,7 @@
   
   .tree-view-expander svg{
     @include rem-fallback(margin-top, 6px);
-    @include square-px-rem(12px);
+    @include square-px-rem(12px); 
   }
   
   .tree-view-expander-open svg{

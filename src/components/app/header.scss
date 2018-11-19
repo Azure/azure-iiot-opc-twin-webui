@@ -14,28 +14,6 @@ $imgSize: 30px;
 
   @include rem-fallback(height, $headerHeight);
 
-  /* .breadcrumbs {
-    display: flex;
-    flex-flow: row nowrap;
-    flex-grow: 1;
-    align-items: center;
-    padding-left: 20px;
-    @include rem-font-size(14px);
-
-    .chevron-icon {
-      margin-left: 10px;
-      margin-right: 10px;
-
-      svg { @include square-px-rem(14px); }
-    }
-
-    .crumb {
-      text-transform: capitalize;
-      text-decoration: none;
-    }
-
-    a.crumb:hover { text-decoration: underline; }
-  } */
   .breadcrumbs { 
     display: flex;
     flex-flow: row nowrap;

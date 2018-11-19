@@ -4,4 +4,5 @@
 
 export * from './authService';
 export * from './httpClient';
-export * from './opcTwinService';
+export * from './twinService';
+export * from './registryService';

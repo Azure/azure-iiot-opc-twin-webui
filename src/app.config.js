@@ -11,6 +11,12 @@ const Config = {
   maxRetryAttempts: 2,
   retryableStatusCodes: new Set([ 0, 502, 503 ]),
   defaultAjaxTimeout: 60000, // 10s
+  nodeProperty: {
+    read: 'Read',
+    write: 'Write',
+    method: 'Method',
+    variable: 'Variable'
+  },
 
   aadTenant: process.env.REACT_APP_AAD_TENANT,
   aadAppId: process.env.REACT_APP_AAD_APP_ID,
