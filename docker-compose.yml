@@ -1,14 +1,16 @@
-# docker-compose.yml
-
-version: '3.4'
-
+version: '3'
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  twinwebui:
+    build: .
     command: npm start
     ports:
       - "3000:3000"
-    volumes:
-      - ./app/webui-config.js:/app/build/config.js:ro
+    environment:
+      - REACT_APP_PCS_AUTH_REQUIRED
+      - REACT_APP_PCS_AUTH_ISSUER
+      - REACT_APP_PCS_AUTH_AUDIENCE
+      - REACT_APP_PCS_WEBUI_AUTH_AAD_APPID
+      - REACT_APP_PCS_WEBUI_AUTH_AAD_AUTHORITY
+      - REACT_APP_PCS_WEBUI_AUTH_AAD_TENANT
+      - REACT_APP_PCS_TWIN_REGISTRY_URL=http://localhost:9042
+      - REACT_APP_PCS_TWIN_SERVICE_URL=http://localhost:9041

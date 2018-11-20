@@ -4,7 +4,7 @@ import { HttpClient } from './httpClient';
 import { toReadValueModel } from './models';
 import Config from 'app.config';
 
-const ENDPOINT_TWINS = Config.serviceUrls.twins || 'http://localhost:9041';
+const ENDPOINT_TWINS = Config.serviceUrls.twins;
 
 /**
  * Contains methods for calling the device simulation microservice
