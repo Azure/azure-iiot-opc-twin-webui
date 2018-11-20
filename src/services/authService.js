@@ -10,10 +10,11 @@ export class AuthService {
       aadTenant,
       aadAppId,
       aadAudience,
-      aadInstance
+      aadInstance,
+      authEnabled
     } = Config;
 
-    AuthService.authEnabled = (aadTenant && aadAppId && aadAudience && true) || false;
+    AuthService.authEnabled = authEnabled === 'true';
 
     if (!AuthService.authEnabled) {
       return;
@@ -26,11 +27,6 @@ export class AuthService {
 
     if (AuthService.aadInstance && AuthService.aadInstance.endsWith('{0}')) {
       AuthService.aadInstance = AuthService.aadInstance.substr(0, AuthService.aadInstance.length - 3);
-    }
-
-    // TODO: support multiple types/providers
-    if (AuthService.isEnabled() && global.DeploymentConfig.authType !== 'aad') {
-      throw new Error(`Unknown auth type: ${global.DeploymentConfig.authType}`);
     }
 
     AuthService.authContext = new AuthenticationContext({
@@ -89,12 +85,18 @@ export class AuthService {
     if (user) {
       callback({
         Name: user.profile.name,
-        Email: user.profile.upn
+        Email: user.profile.email
       });
     } else {
       console.log('The user is not signed in');
       AuthService.authContext.login();
     }
+  }
+
+  static getCurrentUser() {
+    if (AuthService.isDisabled()) return;
+
+    return AuthService.authContext.getCachedUser();
   }
 
   static logout() {

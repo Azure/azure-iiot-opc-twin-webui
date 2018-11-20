@@ -94,6 +94,13 @@ export const epics = createEpicScenario({
       action$
         .ofType(actionType)
         .map(({ payload }) => redux.actions.updatePath({payload})) // payload === pathname
+  },
+  fetchUser: {
+    type: 'FETCH_USER',
+    rawEpic: (action$, store, actionType) =>
+      action$
+        .ofType(actionType)
+        .map(({ payload }) => redux.actions.updateUser({payload}))
   }
 });
 
@@ -133,7 +140,8 @@ const initialState = {
   errors: {},
   browseFlyoutIsOpen: false,
   value: {},
-  endpointFilter: 'all'
+  endpointFilter: 'all',
+  user: {}
 };
 
 const unsetPendingFlag = flag => ({ pendingStates: { $unset: [flag] }});
@@ -252,6 +260,13 @@ const updateEndpointFilter = (state, { payload }) => update(state,
   { endpointFilter: { $set: payload } }
 );
 
+const updateUserReducer = (state, action) => { 
+  
+  return update(state, {
+     user: { $set: action.payload.payload }
+ }); 
+}
+
 export const redux = createReducerScenario({
   updateApplication: { type: 'UPDATE_APPLICATIONS', reducer: updateApplicationsReducer },
   updateApplicationWithEndpoint: { type: 'UPDATE_APPLICATION_WITH_ENDPOINT', reducer: updateApplicationWithEndpointReducer },
@@ -261,7 +276,8 @@ export const redux = createReducerScenario({
   updateTwins: { type: 'UPDATE_TWINS', reducer: updateTwinsReducer },
   updateSupervisors: { type: 'UPDATE_SUPERVISORS', reducer: updateSupervisorsReducer },
   updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer },
-  updateEndpointFilter: { type: 'APP_UPDATE_ENDPOINT_FILTER', reducer: updateEndpointFilter }
+  updateEndpointFilter: { type: 'APP_UPDATE_ENDPOINT_FILTER', reducer: updateEndpointFilter },
+  updateUser: { type: 'UPDATE_USER', reducer: updateUserReducer }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -280,6 +296,7 @@ export const getTwins = state => Object.values(getEntities(state).twins);
 export const getSupervisors = state => Object.values(getEntities(state).supervisors);
 export const getPaths = state => getEntities(state).path;
 export const getEndpointFilter = state => getAppReducer(state).endpointFilter;
+export const getUser = state => getAppReducer(state).user;
 export const getFilteredEndpoints = createSelector(
   getEndpoints, getEndpointFilter,
   (endpointList, filter) => {
