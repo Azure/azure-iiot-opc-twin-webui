@@ -187,55 +187,63 @@ class EndpointNode extends Component {
     return value;
   }
 
+  isVisible() {
+    const { data, appData } = this.props;
+    return (appData.discoveryUrls.includes(data.endpoint.url));
+  }
+
   render() {
     const { data, api, t } = this.props;
     const { isPending, path } = this.state;
     const [_, policy] = data.endpoint.securityPolicy.split('#');
     const rootNode = api.getNode(data.id, api.getReferences(data.id));
     const error = api.isNodeError(data.id);
-
+  
     return (
-      <div className="hierarchy-level">
-        {
-          <Radio className="radio-container" checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
-            <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
-          </Radio>
-        }
-        <div className="hierarchy-name">
-          {t('explorerLabel.endpoint')}<br />
-          {this.isActive() 
-            ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
-            : <div className="hierarchy-space"/>
-          } 
-          {data.endpoint.url} 
-          { api.isNodePending(data.id) ? <Indicator /> : null }
+        this.isVisible() &&
+        <div className="hierarchy-level">
+          {
+            <Radio className="radio-container" checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
+              <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
+            </Radio>
+          }
+          <div className="hierarchy-name">
+            {t('explorerLabel.endpoint')}<br />
+            {this.isActive() 
+              ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
+              : <div className="hierarchy-space"/>
+            } 
+            {data.endpoint.url} 
+            { api.isNodePending(data.id) ? <Indicator /> : null }
+          </div>
+          <div className="node-details">
+            {t('securityMode')}{data.endpoint.securityMode}
+          </div>
+          <div className="node-details">
+            {t('securityPolicy')}{policy}
+          </div>
+          {
+            error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
+          }
+          {
+            this.state.expanded
+              && rootNode
+              && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
+          }
         </div>
-        <div className="node-details">
-          {t('securityMode')}{data.endpoint.securityMode}
-        </div>
-        <div className="node-details">
-          {t('securityPolicy')}{policy}
-        </div>
-        {
-          error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
-        }
-        {
-          this.state.expanded
-            && rootNode
-            && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
-        }
-      </div>
+        
     );
   }
 }
 
-const EndpointNodeList = ({ data, api, twins, path, t }) => data.map((endpointId, index) =>
+const EndpointNodeList = ({ data, api, twins, path, appData, t }) => data.map((endpointId, index) =>
   <EndpointNode 
     data={data[index]}
     api={api} 
     key={endpointId} 
     twins={twins} 
     path={path}
+    appData={appData}
     t={t} />
 );
 
@@ -263,7 +271,10 @@ class ApplicationNode extends Component {
   toggle = () => {
     const { applicationData, api, path } = this.props;
 
-    if (!isDef(applicationData.endpoints)) api.fetchEndpoints(applicationData.applicationId);
+    if (!isDef(applicationData.endpoints)) 
+    {
+      api.fetchEndpoints(applicationData.applicationId);
+    }
     this.setState({ expanded: !this.state.expanded });
 
     const currentPath = api.fetchPath('/' + path + '/' + applicationData.applicationName);
@@ -318,6 +329,7 @@ class ApplicationNode extends Component {
                 api={api} 
                 twins={twins} 
                 path={applicationData.applicationName} 
+                appData={applicationData}
                 t={t} />
             : null
         }

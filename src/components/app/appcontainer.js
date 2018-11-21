@@ -8,7 +8,7 @@ import { AuthService } from 'services';
 import App from './app';
 
 import { 
-  epics,
+  redux as appRedux,
   getUser
 } from 'store/reducers/appReducer';
 
@@ -16,14 +16,10 @@ const mapStateToProps = state => ({
   user: getUser(state)
 });
 
-const mapDispatchToProps = dispatch => {
-  window.savedDispatch = dispatch;
-  window.savedEpics = epics;
-  return {
+const mapDispatchToProps = dispatch => ({
     logout: () => AuthService.logout(),
-    fetchUser: (user) => dispatch(epics.actions.fetchUser(user)),
-  };
-}
+    updateUser: (user) => dispatch(appRedux.actions.updateUser(user)),
+});
 
 
 const AppContainer = withRouter(translate()(connect(mapStateToProps, mapDispatchToProps)(App)))
