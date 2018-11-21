@@ -211,26 +211,26 @@ class EndpointNode extends Component {
           {t('explorerLabel.endpoint')}<br />
           {this.isActive() 
             ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
-             : <div className="hierarchy-space"/>
-           } 
-           {data.endpoint.url} 
-           { api.isNodePending(data.id) ? <Indicator /> : null }
-         </div>
-         <div className="node-details">
-           {t('securityMode')}{data.endpoint.securityMode}
-         </div>
-         <div className="node-details">
-           {t('securityPolicy')}{policy}
-         </div>
-         {
-           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
-         }
-         {
-           this.state.expanded
-             && rootNode
-             && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
-         }
-      </div>    
+            : <div className="hierarchy-space"/>
+          } 
+          {data.endpoint.url} 
+          { api.isNodePending(data.id) ? <Indicator /> : null }
+        </div>
+        <div className="node-details">
+          {t('securityMode')}{data.endpoint.securityMode}
+        </div>
+        <div className="node-details">
+          {t('securityPolicy')}{policy}
+        </div>
+        {
+          error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
+        }
+        {
+          this.state.expanded
+            && rootNode
+            && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
+        }
+      </div>
     );
   }
 }
