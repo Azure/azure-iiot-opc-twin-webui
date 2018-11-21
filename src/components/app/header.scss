@@ -43,6 +43,12 @@ $imgSize: 30px;
       background-color: transparent;
     }
 
+    .item-user {
+      padding-left: 8px;
+      color: $colorSmoke;
+      @include rem-font-size(14px);
+    }
+
     .item-icon {
       cursor: pointer;
 

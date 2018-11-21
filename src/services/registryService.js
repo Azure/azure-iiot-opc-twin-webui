@@ -15,17 +15,17 @@ export class RegistryService {
    * Returns a list of devicemodels
    */
   static getApplicationsList() {
-    const value = HttpClient.get(`${ENDPOINT_REGISTRY}/v1/applications`, undefined, false)
+    const value = HttpClient.get(`${ENDPOINT_REGISTRY}/v1/applications`, undefined)
       .map(getItems);
     return value;
   }
 
   static getApplication(id) {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/applications/${id}`, undefined, false);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/applications/${id}`, undefined);
   }
 
   static getTwins() {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/endpoints`, undefined, false);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/endpoints`, undefined);
   }
 
   static activateTwin(endpointId, payload) {
@@ -46,12 +46,12 @@ export class RegistryService {
 
   static getSupervisorsList(serverState) {
     const serverStateString = serverState ? `?onlyServerState=${encodeURIComponent(serverState)}` : '';
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${serverStateString}`, undefined, false)
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${serverStateString}`, undefined)
       .map(getItems);
   }
 
   static getSupervisor(id) {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${id}`, undefined, false);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${id}`, undefined);
   }
 
   static updateSupervisor(payload) {

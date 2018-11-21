@@ -7,11 +7,25 @@ import { translate } from 'react-i18next';
 import { AuthService } from 'services';
 import App from './app';
 
-const mapDispatchToProps = dispatch => ({
-  logout: () => AuthService.logout()
+import { 
+  epics,
+  getUser
+} from 'store/reducers/appReducer';
+
+const mapStateToProps = state => ({
+  user: getUser(state)
 });
 
+const mapDispatchToProps = dispatch => {
+  window.savedDispatch = dispatch;
+  window.savedEpics = epics;
+  return {
+    logout: () => AuthService.logout(),
+    fetchUser: (user) => dispatch(epics.actions.fetchUser(user)),
+  };
+}
 
-const AppContainer = withRouter(translate()(connect(undefined, mapDispatchToProps)(App)))
+
+const AppContainer = withRouter(translate()(connect(mapStateToProps, mapDispatchToProps)(App)))
 
 export default AppContainer;

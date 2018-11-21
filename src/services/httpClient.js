@@ -9,13 +9,12 @@ import { AjaxError, RetryableAjaxError } from './models';
  * A class of static methods for creating ajax requests
  */
 export class HttpClient {
-
   /**
    * Constructs a GET ajax request
    *
    * @param {string} url The url path to the make the request to
    */
-  static get(url, options = {}, withAuth = true) {
+  static get(url, options = {}, withAuth = Config.authEnabled) {
     return HttpClient.ajax(url, { ...options, method: 'GET' }, withAuth);
   }
 
@@ -24,7 +23,7 @@ export class HttpClient {
    *
    * @param {string} url The url path to the make the request to
    */
-  static post(url, body = {}, options = {}, withAuth = true) {
+  static post(url, body = {}, options = {}, withAuth = Config.authEnabled) {
     return HttpClient.ajax(url, { ...options, body, method: 'POST' }, withAuth);
   }
 
@@ -33,7 +32,7 @@ export class HttpClient {
    *
    * @param {string} url The url path to the make the request to
    */
-  static put(url, body = {}, options = {}, withAuth = true) {
+  static put(url, body = {}, options = {}, withAuth = Config.authEnabled) {
     return HttpClient.ajax(url, { ...options, body, method: 'PUT' }, withAuth);
   }
 
@@ -42,7 +41,7 @@ export class HttpClient {
    *
    * @param {string} url The url path to the make the request to
    */
-  static patch(url, body = {}, options = {}, withAuth = true) {
+  static patch(url, body = {}, options = {}, withAuth = Config.authEnabled) {
     return HttpClient.ajax(url, { ...options, body, method: 'PATCH' }, withAuth);
   }
 
@@ -51,7 +50,7 @@ export class HttpClient {
    *
    * @param {string} url The url path to the make the request to
    */
-  static delete(url, body = {}, options = {}, withAuth = true) {
+  static delete(url, body = {}, options = {}, withAuth = Config.authEnabled) {
     return HttpClient.ajax(url, { ...options, body, method: 'DELETE' }, withAuth);
   }
 

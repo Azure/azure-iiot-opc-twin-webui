@@ -13,7 +13,7 @@ export class TwinService {
 
   static browseNode(endpointId, nodeId) {
     const queryString = nodeId ? `?nodeId=${encodeURIComponent(nodeId)}` : '';
-    return HttpClient.get(`${ENDPOINT_TWINS}/v1/browse/${endpointId}${queryString}`, undefined, false)
+    return HttpClient.get(`${ENDPOINT_TWINS}/v1/browse/${endpointId}${queryString}`, undefined)
       .map(({ node, references }) => ({
         node,
         references
@@ -22,7 +22,7 @@ export class TwinService {
 
   static readNodeValue(endpointId, nodeId) {
     const queryString = nodeId ? `?nodeId=${encodeURIComponent(nodeId)}` : '';
-    return HttpClient.get(`${ENDPOINT_TWINS}/v1/read/${endpointId}${queryString}`, undefined, false)
+    return HttpClient.get(`${ENDPOINT_TWINS}/v1/read/${endpointId}${queryString}`, undefined)
       .map(toReadValueModel);
   }
 
