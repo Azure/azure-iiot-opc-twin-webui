@@ -200,38 +200,37 @@ class EndpointNode extends Component {
     const error = api.isNodeError(data.id);
   
     return (
-        this.isVisible() &&
-        <div className="hierarchy-level">
-          {
-            <Radio className="radio-container" checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
-              <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
-            </Radio>
-          }
-          <div className="hierarchy-name">
-            {t('explorerLabel.endpoint')}<br />
-            {this.isActive() 
-              ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
-              : <div className="hierarchy-space"/>
-            } 
-            {data.endpoint.url} 
-            { api.isNodePending(data.id) ? <Indicator /> : null }
-          </div>
-          <div className="node-details">
-            {t('securityMode')}{data.endpoint.securityMode}
-          </div>
-          <div className="node-details">
-            {t('securityPolicy')}{policy}
-          </div>
-          {
-            error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
-          }
-          {
-            this.state.expanded
-              && rootNode
-              && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
-          }
-        </div>
-        
+      this.isVisible() &&
+      <div className="hierarchy-level">
+        {
+          <Radio className="radio-container" checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
+             <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
+          </Radio>
+        }
+        <div className="hierarchy-name">
+          {t('explorerLabel.endpoint')}<br />
+          {this.isActive() 
+            ? <Expander expanded={this.state.expanded} onClick={this.isActive() && this.toggle}/>
+             : <div className="hierarchy-space"/>
+           } 
+           {data.endpoint.url} 
+           { api.isNodePending(data.id) ? <Indicator /> : null }
+         </div>
+         <div className="node-details">
+           {t('securityMode')}{data.endpoint.securityMode}
+         </div>
+         <div className="node-details">
+           {t('securityPolicy')}{policy}
+         </div>
+         {
+           error ? <ErrorMsg>{ error.message }</ErrorMsg> : null
+         }
+         {
+           this.state.expanded
+             && rootNode
+             && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
+         }
+      </div>    
     );
   }
 }
@@ -271,10 +270,7 @@ class ApplicationNode extends Component {
   toggle = () => {
     const { applicationData, api, path } = this.props;
 
-    if (!isDef(applicationData.endpoints)) 
-    {
-      api.fetchEndpoints(applicationData.applicationId);
-    }
+    if (!isDef(applicationData.endpoints)) api.fetchEndpoints(applicationData.applicationId);
     this.setState({ expanded: !this.state.expanded });
 
     const currentPath = api.fetchPath('/' + path + '/' + applicationData.applicationName);
