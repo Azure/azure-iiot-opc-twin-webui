@@ -40,7 +40,10 @@ class Header extends Component {
         </div>
         <div className="label">{ this.props.t('header.appName') }</div>
         <div className="items-container">
-          <span className="item-user">{this.props.user.userName}</span> 
+          {
+            this.props.user &&
+            <span className="item-user">{this.props.user.userName}</span> 
+          }
           <button className="item-icon profile" onClick={this.toggleDropdown}>
             <img src={ProfileImagePath} alt={ this.props.t('header.logout') } />
           </button>
