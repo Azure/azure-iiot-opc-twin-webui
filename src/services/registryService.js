@@ -4,7 +4,7 @@ import { HttpClient } from './httpClient';
 import { getItems } from 'utilities';
 import Config from 'app.config';
 
-const ENDPOINT_REGISTRY = Config.serviceUrls.registry || 'http://localhost:9042';
+const ENDPOINT_REGISTRY = Config.serviceUrls.registry;
 
 /**
  * Contains methods for calling the device simulation microservice

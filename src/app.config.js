@@ -3,8 +3,8 @@
 
 const Config = {
   serviceUrls: {
-    registry: process.env.REACT_APP_PCS_TWIN_REGISTRY_URL,
-    twins: process.env.REACT_APP_PCS_TWIN_SERVICE_URL
+    registry: process.env.REACT_APP_PCS_TWIN_REGISTRY_URL || "http://localhost:9042",
+    twins: process.env.REACT_APP_PCS_TWIN_SERVICE_URL || "http://localhost:9041"
   },
   // Constants
   retryWaitTime: 2000, // On retryable error, retry after 2s
