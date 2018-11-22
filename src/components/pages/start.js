@@ -189,7 +189,7 @@ class EndpointNode extends Component {
 
   isVisible() {
     const { data, appData } = this.props;
-    return (appData.discoveryUrls.includes(data.endpoint.url));
+    return (appData.endpoints.includes(data.id));
   }
 
   render() {
@@ -474,11 +474,11 @@ export class Start extends Component {
   };
 
   componentDidMount () {
-    this.props.fetchSupervisors('true');
+    this.props.fetchSupervisors();
   }
 
   refresh = () => {
-    this.props.fetchSupervisors('true');
+    this.props.fetchSupervisors();
     this.props.fetchPath('');
     this.setState({lastRefreshed: moment() });
     this.setState({refresh: !this.state.refresh });

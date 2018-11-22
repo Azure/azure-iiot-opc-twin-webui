@@ -82,7 +82,7 @@ export const epics = createEpicScenario({
     type: 'FETCH_SUPERVISORS',
     epic: fromAction => {
       const pendingFlag = pendingSupervisors();
-      return RegistryService.getSupervisorsList(fromAction.payload)
+      return RegistryService.getSupervisorsList()
         .map(toActionCreatorWithPending(redux.actions.updateSupervisors, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));

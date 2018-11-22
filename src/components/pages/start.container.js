@@ -43,7 +43,7 @@ const mapDispatchToProps = dispatch => {
     fetchEndpoints: (applicationId) => dispatch(epics.actions.fetchEndpoints(applicationId)),
     fetchNode: (endpointId, nodeId) => dispatch(epics.actions.fetchNode({ endpointId, nodeId })),
     fetchTwins: () => dispatch(epics.actions.fetchTwins()),
-    fetchSupervisors: (onlyServerState) => dispatch(epics.actions.fetchSupervisors(onlyServerState)),
+    fetchSupervisors: () => dispatch(epics.actions.fetchSupervisors()),
     fetchPath: (path) => dispatch(epics.actions.fetchPath(path)),
     updateEndpointFilter: endpointFilter => dispatch(appRedux.actions.updateEndpointFilter(endpointFilter))
   };
