@@ -23,7 +23,7 @@ import './app.css';
 class App extends Component {
 
   componentDidMount () {
-    this.props.fetchUser(AuthService.getCurrentUser());
+    this.props.updateUser(AuthService.getCurrentUser());
   }
 
   render() {

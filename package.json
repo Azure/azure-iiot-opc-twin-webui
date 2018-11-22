@@ -11,7 +11,7 @@
     "i18next-browser-languagedetector": "2.1.0",
     "i18next-xhr-backend": "1.5.1",
     "immutability-helper": "2.5.1",
-    "moment": "2.19.3",
+    "moment": "2.22.1",
     "normalizr": "3.2.4",
     "react": "16.0.0",
     "react-contextmenu": "^2.9.3",

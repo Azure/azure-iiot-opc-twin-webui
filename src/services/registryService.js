@@ -44,8 +44,8 @@ export class RegistryService {
     return HttpClient.delete(`${ENDPOINT_REGISTRY}/v1/applications/${applicationId}`);
   }
 
-  static getSupervisorsList(serverState) {
-    const serverStateString = serverState ? `?onlyServerState=${encodeURIComponent(serverState)}` : '';
+  static getSupervisorsList() {
+    const serverStateString = `?onlyServerState=true`;
     return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${serverStateString}`, undefined)
       .map(getItems);
   }

@@ -82,7 +82,7 @@ export const epics = createEpicScenario({
     type: 'FETCH_SUPERVISORS',
     epic: fromAction => {
       const pendingFlag = pendingSupervisors();
-      return RegistryService.getSupervisorsList(fromAction.payload)
+      return RegistryService.getSupervisorsList()
         .map(toActionCreatorWithPending(redux.actions.updateSupervisors, fromAction, pendingFlag))
         .startWith(redux.actions.startPendingState(pendingFlag))
         .catch(handleError(pendingFlag, fromAction));
@@ -94,13 +94,6 @@ export const epics = createEpicScenario({
       action$
         .ofType(actionType)
         .map(({ payload }) => redux.actions.updatePath({payload})) // payload === pathname
-  },
-  fetchUser: {
-    type: 'FETCH_USER',
-    rawEpic: (action$, store, actionType) =>
-      action$
-        .ofType(actionType)
-        .map(({ payload }) => redux.actions.updateUser({payload}))
   }
 });
 
@@ -260,12 +253,9 @@ const updateEndpointFilter = (state, { payload }) => update(state,
   { endpointFilter: { $set: payload } }
 );
 
-const updateUserReducer = (state, action) => { 
-  
-  return update(state, {
-     user: { $set: action.payload.payload }
- }); 
-}
+const updateUser = (state, { payload }) => update(state,
+  { user: { $set: payload } }
+);
 
 export const redux = createReducerScenario({
   updateApplication: { type: 'UPDATE_APPLICATIONS', reducer: updateApplicationsReducer },
@@ -277,7 +267,7 @@ export const redux = createReducerScenario({
   updateSupervisors: { type: 'UPDATE_SUPERVISORS', reducer: updateSupervisorsReducer },
   updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer },
   updateEndpointFilter: { type: 'APP_UPDATE_ENDPOINT_FILTER', reducer: updateEndpointFilter },
-  updateUser: { type: 'UPDATE_USER', reducer: updateUserReducer }
+  updateUser: { type: 'UPDATE_USER', reducer: updateUser }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };

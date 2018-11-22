@@ -187,18 +187,24 @@ class EndpointNode extends Component {
     return value;
   }
 
+  isVisible() {
+    const { data, appData } = this.props;
+    return (appData.endpoints.includes(data.id));
+  }
+
   render() {
     const { data, api, t } = this.props;
     const { isPending, path } = this.state;
     const [_, policy] = data.endpoint.securityPolicy.split('#');
     const rootNode = api.getNode(data.id, api.getReferences(data.id));
     const error = api.isNodeError(data.id);
-
+  
     return (
+      this.isVisible() &&
       <div className="hierarchy-level">
         {
           <Radio className="radio-container" checked={this.isActive() === true} value={this.isActive()} onClick={this.radioChange}>
-            <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
+             <div className="text-radio-button"> {t('activateEndpoint')}  {isPending ? <Indicator size="small" /> : null} </div>
           </Radio>
         }
         <div className="hierarchy-name">
@@ -229,13 +235,14 @@ class EndpointNode extends Component {
   }
 }
 
-const EndpointNodeList = ({ data, api, twins, path, t }) => data.map((endpointId, index) =>
+const EndpointNodeList = ({ data, api, twins, path, appData, t }) => data.map((endpointId, index) =>
   <EndpointNode 
     data={data[index]}
     api={api} 
     key={endpointId} 
     twins={twins} 
     path={path}
+    appData={appData}
     t={t} />
 );
 
@@ -318,6 +325,7 @@ class ApplicationNode extends Component {
                 api={api} 
                 twins={twins} 
                 path={applicationData.applicationName} 
+                appData={applicationData}
                 t={t} />
             : null
         }
@@ -466,11 +474,11 @@ export class Start extends Component {
   };
 
   componentDidMount () {
-    this.props.fetchSupervisors('true');
+    this.props.fetchSupervisors();
   }
 
   refresh = () => {
-    this.props.fetchSupervisors('true');
+    this.props.fetchSupervisors();
     this.props.fetchPath('');
     this.setState({lastRefreshed: moment() });
     this.setState({refresh: !this.state.refresh });
