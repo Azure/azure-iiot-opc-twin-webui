@@ -1,12 +1,12 @@
 # Azure Industrial IoT OPC UA Device Twin Management
 
-Web App for Azure IIot Device Twin Services.
+A Web Application written in React.js that uses the Azure Industrial IoT OPC UA device services, OPC Registry and OPC Twin.
 
 ## Getting started
 
 The Sample User Experience and dependent services are part of our [Azure Industrial IoT (IIoT) components](#Other-Azure-Industrial-IoT-components) suite.
 
-The easiest way to test the Web UI is against a deployed OPC UA Device Twin demo. The demo can be deployed via the [command line](https://github.com/Azure/azure-iiot-services/tree/master/deploy).
+The easiest way to test the Web UI is against the deployed Azure Industrial IoT services. The services can be deployed via the [command line](https://github.com/Azure/azure-iiot-services/tree/master/deploy).
 
 ## Setup Dependencies
 
