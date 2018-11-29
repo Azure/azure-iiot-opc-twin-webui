@@ -1,8 +1,14 @@
 # Azure Industrial IoT OPC UA Device Twin Management
 
+A Web Application written in React.js that uses the Azure Industrial IoT OPC UA device services, OPC Registry and OPC Twin.
+
 ## Getting started
 
 The Sample User Experience and dependent services are part of our [Azure Industrial IoT (IIoT) components](#Other-Azure-Industrial-IoT-components) suite.
+
+The easiest way to test the Web UI is against the deployed Azure Industrial IoT services. The services can be deployed via the [command line](https://github.com/Azure/azure-iiot-services/tree/master/deploy).
+
+## Setup Dependencies
 
 1. Install [node.js](https://nodejs.org/)
 1. For development, you can use your preferred editor
@@ -14,8 +20,8 @@ The Sample User Experience and dependent services are part of our [Azure Industr
 
    In order to run the Web UI, the environment variables need to be created at least once. More information on configuring environment variables [here](#configuration-and-environment-variables).
 
-   * `PCS_TWIN_REGISTRY_URL` refers to the url of the registry service and defaults to http://localhost:9042
-   * `PCS_TWIN_SERVICE_URL` refers to the url of the twin service and defaults to http://localhost:9041
+   * `REACT_APP_PCS_TWIN_REGISTRY_URL` refers to the url of the registry service and defaults to http://localhost:9042
+   * `REACT_APP_PCS_TWIN_SERVICE_URL` refers to the url of the twin service and defaults to http://localhost:9041
 
 ### Build, run and test locally
 
@@ -37,6 +43,12 @@ request/response objects to front end models.
 etc.
 - `utilities`: Contains helper scripts used across the application.
 
+## Configuration and Environment variables
+
+The Web UI configuration is stored in [app.config.js](https://github.com/Azure/azure-iiot-opc-twin-webui/blob/master/src/app.config.js).
+
+The configuration files in the repository reference some environment variables that need to be created at least once. 
+
 ## Contributing to the solution
 
 Please follow our [contribution guildelines](CONTRIBUTING.md) and the code style conventions.
@@ -50,7 +62,6 @@ You can find a guide to using it [here](https://github.com/facebookincubator/cre
 ### Core technologies overview
 
 - [ReactJS](https://reactjs.org/)
-- [React-Router v4](https://github.com/ReactTraining/react-router)
 - [Redux](https://redux.js.org/)
 - [Redux-Observable](https://redux-observable.js.org/)
 - [RxJs](http://reactivex.io/rxjs/)
