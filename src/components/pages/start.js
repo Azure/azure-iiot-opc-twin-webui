@@ -383,10 +383,9 @@ class Supervisor extends Component {
     const { supervisorsData } = this.props;
     const data = {};
 
-    data.id = supervisorsData.id;
     data.discovery = event.target.value ? 'Fast' : 'Off';
 
-    this.subscription = RegistryService.updateSupervisor(JSON.stringify(toScanSupervisorModel(data), null, 2))
+    this.subscription = RegistryService.updateSupervisor(supervisorsData.id, JSON.stringify(toScanSupervisorModel(data), null, 2))
       .subscribe(
         () => {
           this.setState({ scanStatus: event.target.value })

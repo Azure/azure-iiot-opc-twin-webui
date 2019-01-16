@@ -31,6 +31,5 @@ export const toCallNodeMethodModel = (params = {}, nodeId, values) => {
 };
 
 export const toScanSupervisorModel = (params = {}) => ({
-    id: params.id,
     discovery: params.discovery
 });

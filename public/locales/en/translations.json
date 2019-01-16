@@ -8,9 +8,6 @@
     "start": "start"
   },
   "pageHeader": "Start Page",
-  "startCounter": "Start Counter",
-  "resetCounter": "Reset Counter",
-  "count": "Count: {{count}}",
   "delete": "Delete",
   "scan": "Scan",
   "securityMode": "Security Mode: ",
