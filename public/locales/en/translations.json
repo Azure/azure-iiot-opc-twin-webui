@@ -28,7 +28,9 @@
     "options": {
       "read": "Read",
       "write": "Write",
-      "call": "Call"
+      "call": "Call",
+      "publish": "Publish",
+      "unPublish": "UnPublish"
     },
     "validation": {
       "required": "Parameter is required",

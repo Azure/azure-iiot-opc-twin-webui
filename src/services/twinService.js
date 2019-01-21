@@ -37,4 +37,16 @@ export class TwinService {
   static callNodeMethod(endpointId, payload) {
     return HttpClient.post(`${ENDPOINT_TWINS}/v1/call/${endpointId}`, payload);
   }
+
+  static publishNodeValues(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/publish/${endpointId}/start`, payload);
+  }
+
+  static unPublishNodeValues(endpointId, payload) {
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/publish/${endpointId}/stop`, payload);
+  }
+
+  static getPublishedNodes(endpointId) {
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/publish/${endpointId}`);
+  }
 }

@@ -24,7 +24,9 @@ import './manageBrowse.css';
 import { 
   toWriteValueModel,
   toCallNodeMethodMetadataModel,
-  toCallNodeMethodModel
+  toCallNodeMethodModel, 
+  toPublishValueModel,
+  toUnPublishValueModel
 } from 'services/models';
 
 const Json = ({ children }) => <pre>{JSON.stringify(children, null, 2) }</pre>;
@@ -34,6 +36,8 @@ const isNumeric = value => !isNaN(parseInt(value, 10));
 const READ = 'read';
 const WRITE = 'write';
 const CALL = 'call';
+const PUBLISH = 'publish';
+const UNPUBLISH =  'unPublish';
 
 export class ManageBrowseMethods extends LinkedComponent {
 
@@ -115,23 +119,93 @@ export class ManageBrowseMethods extends LinkedComponent {
           error => this.setErrorState(error)
         );
       break;
+      case PUBLISH:
+        this.subscription = TwinService.publishNodeValues(endpoint, JSON.stringify(toPublishValueModel(data), null, 2))
+        .subscribe(
+          (response) => {
+            this.setState({ value: response.value })
+            this.setState({ isPending: false });
+          },
+          error => this.setErrorState(error)
+        );
+      break;
+      case UNPUBLISH:
+        this.subscription = TwinService.unPublishNodeValues(endpoint, JSON.stringify(toUnPublishValueModel(data), null, 2))
+        .subscribe(
+          (response) => {
+            this.setState({ value: response.value })
+            this.setState({ isPending: false });
+          },
+          error => this.setErrorState(error)
+        );
+      break;
       default:
       break;
     }
     this.setState({ changesApplied: true });
   }
 
-  checkAccessLevel = () => {
+  checkPublish = (response) => {
     const { data } = this.props;
+
+    if (response.items != null) {
+      if ( response.items.some ((val) => { return val.nodeId === data.id; })) {
+        actionType.push(UNPUBLISH);
+      } else {
+        actionType.push(PUBLISH);
+      }
+    } else {
+      actionType.push(PUBLISH);
+    }
+  }
+
+
+  checkAccessLevel = () => {
+    const { data, endpoint } = this.props;
 
     actionType.length = 0;
     this.state = { isAccessible: true };
+    const aa = endpoint;
  
     if (data.nodeClass === Config.nodeProperty.method)
     {
       actionType.push(CALL);
     }
     else if (data.accessLevel !== undefined) {
+
+      //check if node is already published
+       this.subscription = TwinService.getPublishedNodes(endpoint, JSON.stringify('{}', null, 2))
+         .subscribe(
+           (response) => {
+            if (response.items != null) {
+              if ( response.items.some ((val) => { return val.nodeId === data.id; })) {
+                actionType.push(UNPUBLISH);
+              } else {
+                actionType.push(PUBLISH);
+              }
+            } else {
+              actionType.push(PUBLISH);
+            }
+           }, 
+          //this.checkPublish(response),
+
+           error => this.setErrorState(error)
+         );
+
+      const response = {
+        //"items": null
+         "items": [
+           {
+             "nodeId": "i=225",
+             "nodeAttribute": "NodeClass",
+             "publishingInterval": 0,
+             "samplingInterval": 0
+           }
+         ],
+         "continuationToken": "string"
+      };
+      //this.checkPublish(response);    
+         
       if (data.accessLevel.includes(Config.nodeProperty.read)) {
         actionType.push(READ);
       }
@@ -159,6 +233,15 @@ export class ManageBrowseMethods extends LinkedComponent {
   isCall () {
     return this.actionLink.value === CALL; 
   }
+
+  isPublish () {
+    return this.actionLink.value === PUBLISH; 
+  }
+
+  isUnPublish () {
+    return this.actionLink.value === UNPUBLISH; 
+  }
+
 
   getCallMetadata () {
     const { endpoint, data } = this.props;
@@ -248,7 +331,7 @@ export class ManageBrowseMethods extends LinkedComponent {
               {
                 changesApplied && 
                 <SummarySection>
-                {this.isRead() && <SectionHeader>{t('browseFlyout.value')}</SectionHeader>}
+                  {this.isRead() && <SectionHeader>{t('browseFlyout.value')}</SectionHeader>}
                   <SummaryBody>
                     {this.isRead() && 
                       <SectionDesc>
@@ -279,6 +362,28 @@ export class ManageBrowseMethods extends LinkedComponent {
                             ? <Indicator /> 
                             : !isDef(error) 
                               ? <div>{t('browseFlyout.callSuccesfully')}</div> 
+                              : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
+                        } 
+                      </SectionDesc>
+                    }
+                    {this.isPublish() && 
+                      <SectionDesc>
+                        { 
+                          isPending 
+                            ? <Indicator /> 
+                            : !isDef(error) 
+                              ? <Json>{ value }</Json> 
+                              : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
+                        } 
+                      </SectionDesc>
+                    }
+                    {this.isUnPublish() && 
+                      <SectionDesc>
+                        { 
+                          isPending 
+                            ? <Indicator /> 
+                            : !isDef(error) 
+                              ? <Json>{ value }</Json> 
                               : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
                         } 
                       </SectionDesc>
