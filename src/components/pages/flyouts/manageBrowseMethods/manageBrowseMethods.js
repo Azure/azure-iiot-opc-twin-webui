@@ -145,27 +145,11 @@ export class ManageBrowseMethods extends LinkedComponent {
     this.setState({ changesApplied: true });
   }
 
-  checkPublish = (response) => {
-    const { data } = this.props;
-
-    if (response.items != null) {
-      if ( response.items.some ((val) => { return val.nodeId === data.id; })) {
-        actionType.push(UNPUBLISH);
-      } else {
-        actionType.push(PUBLISH);
-      }
-    } else {
-      actionType.push(PUBLISH);
-    }
-  }
-
-
   checkAccessLevel = () => {
     const { data, endpoint } = this.props;
 
     actionType.length = 0;
     this.state = { isAccessible: true };
-    const aa = endpoint;
  
     if (data.nodeClass === Config.nodeProperty.method)
     {
@@ -187,24 +171,8 @@ export class ManageBrowseMethods extends LinkedComponent {
               actionType.push(PUBLISH);
             }
            }, 
-          //this.checkPublish(response),
-
            error => this.setErrorState(error)
          );
-
-      const response = {
-        //"items": null
-         "items": [
-           {
-             "nodeId": "i=225",
-             "nodeAttribute": "NodeClass",
-             "publishingInterval": 0,
-             "samplingInterval": 0
-           }
-         ],
-         "continuationToken": "string"
-      };
-      //this.checkPublish(response);    
          
       if (data.accessLevel.includes(Config.nodeProperty.read)) {
         actionType.push(READ);
@@ -241,7 +209,6 @@ export class ManageBrowseMethods extends LinkedComponent {
   isUnPublish () {
     return this.actionLink.value === UNPUBLISH; 
   }
-
 
   getCallMetadata () {
     const { endpoint, data } = this.props;
