@@ -146,33 +146,21 @@ export class ManageBrowseMethods extends LinkedComponent {
   }
 
   checkAccessLevel = () => {
-    const { data, endpoint } = this.props;
+    const { data, isPublished } = this.props;
 
     actionType.length = 0;
     this.state = { isAccessible: true };
  
-    if (data.nodeClass === Config.nodeProperty.method)
-    {
+    if (data.nodeClass === Config.nodeProperty.method) {
       actionType.push(CALL);
     }
     else if (data.accessLevel !== undefined) {
-
-      //check if node is already published
-       this.subscription = TwinService.getPublishedNodes(endpoint, JSON.stringify('{}', null, 2))
-         .subscribe(
-           (response) => {
-            if (response.items != null) {
-              if ( response.items.some ((val) => { return val.nodeId === data.id; })) {
-                actionType.push(UNPUBLISH);
-              } else {
-                actionType.push(PUBLISH);
-              }
-            } else {
-              actionType.push(PUBLISH);
-            }
-           }, 
-           error => this.setErrorState(error)
-         );
+      if (isPublished) {
+        actionType.push(UNPUBLISH);
+      }
+      else {
+        actionType.push(PUBLISH);
+      }
          
       if (data.accessLevel.includes(Config.nodeProperty.read)) {
         actionType.push(READ);
@@ -339,7 +327,7 @@ export class ManageBrowseMethods extends LinkedComponent {
                           isPending 
                             ? <Indicator /> 
                             : !isDef(error) 
-                              ? <Json>{ value }</Json> 
+                              ? <Json>{t('browseFlyout.publishlSuccesfully')}</Json> 
                               : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
                         } 
                       </SectionDesc>
@@ -350,7 +338,7 @@ export class ManageBrowseMethods extends LinkedComponent {
                           isPending 
                             ? <Indicator /> 
                             : !isDef(error) 
-                              ? <Json>{ value }</Json> 
+                              ? <Json>{t('browseFlyout.unpublishSuccesfully')}</Json> 
                               : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
                         } 
                       </SectionDesc>

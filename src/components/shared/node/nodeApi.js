@@ -41,4 +41,5 @@ export class NodeApi {
     fetchTwins = () => this.componentRef.props.fetchTwins();
     fetchSupervisors = () => this.componentRef.props.fetchSupervisors();
     fetchPath = (path) => this.componentRef.props.fetchPath(path);
+    fetchPublishedNodes = (endpointId) => this.componentRef.props.fetchPublishedNodes(endpointId);
   }

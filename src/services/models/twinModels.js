@@ -43,3 +43,7 @@ export const toPublishValueModel = (params = {}) => ({
 export const toUnPublishValueModel = (params = {}) => ({
     nodeId: params.id
 });
+
+export const toGetPublishedNodesModel = () => ({
+    
+});

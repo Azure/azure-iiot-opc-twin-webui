@@ -24,6 +24,8 @@
     "errorMessage": "Operation failed: ",
     "writeSuccesfully": "Variable written succesfully",
     "callSuccesfully": "Method executed succesfully",
+    "publishlSuccesfully": "Publish executed succesfully",
+    "unpublishSuccesfully": "Unpublish executed succesfully",
     "noAccess": "this variable cannot be accessed",
     "options": {
       "read": "Read",
@@ -56,6 +58,7 @@
     "endpoint": "Endpoint:",
     "node": "Node:",
     "nodeType": "node type: ",
-    "value": " Value: "
+    "value": " Value: ",
+    "published": "-> published"
   }
 }

@@ -40,6 +40,7 @@ $borderColor: $bgColorHover; //#005e8c;
     .node-details {
       padding-left: 21px;
       @include rem-font-size(14px);
+      overflow: hidden
     }
 
     .text-radio-button {
@@ -59,6 +60,12 @@ $borderColor: $bgColorHover; //#005e8c;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      float: left;
+    }
+
+    .node-published {
+      float: right;
+      margin-right: 40px;
     }
 
     .toggle-scan {
