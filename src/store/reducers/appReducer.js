@@ -13,6 +13,10 @@ import {
 } from '../utilities';
 import { createSelector } from 'reselect';
 
+import { 
+  toGetPublishedNodesModel
+} from 'services/models';
+
 // ========================= Pending State Flag Generators - START
 export const pendingApplications = () => 'FETCHING_APPLICATIONS';
 export const pendingEndpoints = (appId) => `FETCHING_ENDPOINTS_${appId}`;
@@ -20,6 +24,7 @@ export const pendingNode = (endpointId, nodeId = 'ROOT') => `FETCHING_NODE_${end
 export const pendingRead = () => `FETCHING_READ_DATA`;
 export const pendingTwins = () => 'FETCHING_TWINS';
 export const pendingSupervisors = () => 'FETCHING_SUPERVISORS';
+export const pendingPublishedNodes = () => 'FETCHING_PUBLISHED_NODES';
 // ========================= Pending State Flag Generators - START
 
 export const toActionCreatorWithPending = (actionCreator, fromAction, pendingFlag) =>
@@ -88,6 +93,17 @@ export const epics = createEpicScenario({
         .catch(handleError(pendingFlag, fromAction));
     }
   },
+  fetchPublishedNodes: {
+    type: 'FETCH_PUBLISHED_NODES',
+    epic: fromAction => {
+      const { endpointId } = fromAction.payload;
+      const pendingFlag = pendingPublishedNodes();
+      return TwinService.getPublishedNodes(endpointId, JSON.stringify(toGetPublishedNodesModel(), null, 2))
+        .map(toActionCreatorWithPending(redux.actions.updatePublishedNodes, fromAction, pendingFlag))
+        .startWith(redux.actions.startPendingState(pendingFlag))
+        .catch(handleError(pendingFlag, fromAction));
+    }
+  },
   fetchPath: {
     type: 'FETCH_PATH',
     rawEpic: (action$, store, actionType) =>
@@ -127,6 +143,7 @@ const initialState = {
     references: {},
     twins: {},
     supervisors: {},
+    publishedNodes: {},
     path: ''
   },
   pendingStates: {},
@@ -249,6 +266,19 @@ const updatePathReducer = (state, action) => {
   }); 
 }
 
+const updatePublishedNodesReducer = (state, action) => { 
+  const published = action.payload.items !== null
+    ? action.payload.items.map((item) => {return {id: item.nodeId}})
+    : {}
+
+  return update(state, {
+    entities: {
+      publishedNodes: { $set: published },
+    },
+    ...unsetPendingFlag(action.pendingFlag)
+  });
+}
+
 const updateEndpointFilter = (state, { payload }) => update(state,
   { endpointFilter: { $set: payload } }
 );
@@ -267,7 +297,8 @@ export const redux = createReducerScenario({
   updateSupervisors: { type: 'UPDATE_SUPERVISORS', reducer: updateSupervisorsReducer },
   updatePath: { type: 'UPDATE_PATH', reducer: updatePathReducer },
   updateEndpointFilter: { type: 'APP_UPDATE_ENDPOINT_FILTER', reducer: updateEndpointFilter },
-  updateUser: { type: 'UPDATE_USER', reducer: updateUser }
+  updateUser: { type: 'UPDATE_USER', reducer: updateUser },
+  updatePublishedNodes: { type: 'UPDATE_PUBLISHED_NODES', reducer: updatePublishedNodesReducer }
 });
 
 export const reducer = { app: redux.getReducer(initialState) };
@@ -287,6 +318,7 @@ export const getSupervisors = state => Object.values(getEntities(state).supervis
 export const getPaths = state => getEntities(state).path;
 export const getEndpointFilter = state => getAppReducer(state).endpointFilter;
 export const getUser = state => getAppReducer(state).user;
+export const getPublishedNodes = state => Object.values(getEntities(state).publishedNodes);
 export const getFilteredEndpoints = createSelector(
   getEndpoints, getEndpointFilter,
   (endpointList, filter) => {

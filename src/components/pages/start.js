@@ -48,6 +48,7 @@ class DataNode extends Component {
     const { data, api, endpoint } = this.props;
     if (this.state.expanded) {
       api.fetchNode(endpoint, data.id);
+      api.fetchPublishedNodes(endpoint);
     }
   }
 
@@ -59,7 +60,10 @@ class DataNode extends Component {
     const { data, api, endpoint, path } = this.props;
 
     if (data.children){
-      if (!isDef(api.getReferences(endpoint, data.id))) api.fetchNode(endpoint, data.id);
+      if (!isDef(api.getReferences(endpoint, data.id))){
+        api.fetchNode(endpoint, data.id);
+        api.fetchPublishedNodes(endpoint);
+      } 
       this.setState({ expanded: !this.state.expanded });
     }
     
@@ -79,13 +83,15 @@ class DataNode extends Component {
   }
 
   render() {
-    const { data, api, endpoint, label, t } = this.props;
+    const { data, api, endpoint, label, t, publishedNodes } = this.props;
     const { path } = this.state;
     const targets = (api.getReferences(endpoint, data.id) || [])
       .map(targetId => api.getNode(endpoint, targetId));
     const error = api.isNodeError(endpoint, data.id);
 
     const browseFlyoutOpen = this.state.openFlyoutName === 'Browse';
+
+    const isPublished = publishedNodes.some((x) =>  { return x.id === data.id; });
 
     return (
       <div className="hierarchy-level">
@@ -100,11 +106,16 @@ class DataNode extends Component {
         <div className="node-details">
           { data.description }
           <div>
-            {t('explorerLabel.nodeType')}
-            {data.nodeClass}
+            <div>
+              {t('explorerLabel.nodeType')}
+              {data.nodeClass}
+            </div>
             <div className="node-value"> 
               {data.value !== undefined && data.children === false  && <label>{t('explorerLabel.value')}{String(data.value)}</label> }
             </div>
+            <span className="node-published">
+              { isPublished ? t('explorerLabel.published') : null}
+            </span>  
           </div>
         </div>
         {
@@ -112,21 +123,28 @@ class DataNode extends Component {
         }
         {
           this.state.expanded
-             && <DataNodeList data={targets} api={api} endpoint={endpoint} path={path} t={t}/>
+             && <DataNodeList 
+                  data={targets} 
+                  api={api} 
+                  endpoint={endpoint} 
+                  path={path}
+                  publishedNodes={publishedNodes} 
+                  t={t}/>
         }    
-        { browseFlyoutOpen && <ManageBrowseMethodsContainer onClose={this.closeFlyout} endpoint={endpoint} data={data} api={api} /> }     
+        { browseFlyoutOpen && <ManageBrowseMethodsContainer onClose={this.closeFlyout} endpoint={endpoint} data={data} api={api} isPublished={isPublished}/> }     
       </div>
     );
   }
 }
 
-const DataNodeList = ({ data, api, endpoint, path, t }) => data.map(node => (
+const DataNodeList = ({ data, api, endpoint, path, t, publishedNodes }) => data.map(node => (
   <DataNode 
     data={node} 
     api={api} 
     endpoint={endpoint} 
     key={node.id} 
     path={path}
+    publishedNodes={publishedNodes}
     t={t} />
 ));
 
@@ -193,7 +211,7 @@ class EndpointNode extends Component {
   }
 
   render() {
-    const { data, api, t } = this.props;
+    const { data, api, t, publishedNodes } = this.props;
     const { isPending, path } = this.state;
     const [_, policy] = data.endpoint.securityPolicy.split('#');
     const rootNode = api.getNode(data.id, api.getReferences(data.id));
@@ -228,14 +246,21 @@ class EndpointNode extends Component {
         {
           this.state.expanded
             && rootNode
-            && <DataNode data={rootNode} api={api} endpoint={data.id} path={path} t={t} label={t('explorerLabel.node')}/>
+            && <DataNode 
+              data={rootNode} 
+              api={api} 
+              endpoint={data.id} 
+              path={path}
+              publishedNodes={publishedNodes} 
+              t={t} 
+              label={t('explorerLabel.node')}/>
         }
       </div>
     );
   }
 }
 
-const EndpointNodeList = ({ data, api, twins, path, appData, t }) => data.map((endpointId, index) =>
+const EndpointNodeList = ({ data, api, twins, path, appData, t, publishedNodes }) => data.map((endpointId, index) =>
   <EndpointNode 
     data={data[index]}
     api={api} 
@@ -243,6 +268,7 @@ const EndpointNodeList = ({ data, api, twins, path, appData, t }) => data.map((e
     twins={twins} 
     path={path}
     appData={appData}
+    publishedNodes={publishedNodes}
     t={t} />
 );
 
@@ -293,7 +319,7 @@ class ApplicationNode extends Component {
   }
 
   render() {
-    const { t, applicationData, api, twins, filteredEndpoints } = this.props;
+    const { t, applicationData, api, twins, filteredEndpoints, publishedNodes } = this.props;
     const { isPending } = this.state;
     const error = api.isEndpointsError(applicationData.applicationId);
 
@@ -326,6 +352,7 @@ class ApplicationNode extends Component {
                 twins={twins} 
                 path={applicationData.applicationName} 
                 appData={applicationData}
+                publishedNodes={publishedNodes}
                 t={t} />
             : null
         }
@@ -334,7 +361,7 @@ class ApplicationNode extends Component {
   }
 }
 
-const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filteredEndpoints, supervisorId, path, t, refresh }) => applicationData.map((app, idx) => (
+const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filteredEndpoints, supervisorId, path, t, refresh, publishedNodes }) => applicationData.map((app, idx) => (
   <ApplicationNode
     applicationData={app}
     api={api}
@@ -343,6 +370,7 @@ const ApplicationNodeList = ({ applicationData, api, twins, endpointFilter, filt
     endpointFilter={endpointFilter}
     filteredEndpoints={filteredEndpoints}
     supervisorId={supervisorId}
+    publishedNodes={publishedNodes}
     path={path}
     t={t}
     refresh={refresh} />
@@ -383,10 +411,9 @@ class Supervisor extends Component {
     const { supervisorsData } = this.props;
     const data = {};
 
-    data.id = supervisorsData.id;
     data.discovery = event.target.value ? 'Fast' : 'Off';
 
-    this.subscription = RegistryService.updateSupervisor(JSON.stringify(toScanSupervisorModel(data), null, 2))
+    this.subscription = RegistryService.updateSupervisor(supervisorsData.id, JSON.stringify(toScanSupervisorModel(data), null, 2))
       .subscribe(
         () => {
           this.setState({ scanStatus: event.target.value })
@@ -406,7 +433,7 @@ class Supervisor extends Component {
   }
 
   render() {
-    const { t, supervisorsData, api, applicationData, twins, endpointFilter, filteredEndpoints, refresh } = this.props;
+    const { t, supervisorsData, api, applicationData, twins, endpointFilter, filteredEndpoints, refresh, publishedNodes } = this.props;
     const { scanStatus } = this.state;
     const error = api.isApplicationsError(); 
 
@@ -439,6 +466,7 @@ class Supervisor extends Component {
               filteredEndpoints={filteredEndpoints}
               supervisorId={supervisorsData.id}
               path={supervisorsData.id}
+              publishedNodes={publishedNodes}
               t={t}
               refresh={refresh} /> 
           : null
@@ -448,7 +476,7 @@ class Supervisor extends Component {
   }
 }
 
-const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpointFilter, filteredEndpoints, t, refresh }) => supervisorsData.map((app, idx) => (
+const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpointFilter, filteredEndpoints, t, refresh, publishedNodes }) => supervisorsData.map((app, idx) => (
   <Supervisor
     supervisorsData={app}
     applicationData={applicationData}
@@ -457,6 +485,7 @@ const SupervisorList = ({ supervisorsData, applicationData, api, twins, endpoint
     key={app.id}
     endpointFilter={endpointFilter}
     filteredEndpoints={filteredEndpoints}
+    publishedNodes={publishedNodes}
     t={t}
     refresh={refresh} />
 )); 
@@ -485,7 +514,7 @@ export class Start extends Component {
   }
 
   render() {
-    const { t, applications, twins, endpointFilter, filteredEndpoints, path, supervisors } = this.props;
+    const { t, applications, twins, endpointFilter, filteredEndpoints, path, supervisors, publishedNodes } = this.props;
     const { lastRefreshed, refresh } = this.state;
 
     return [
@@ -509,7 +538,8 @@ export class Start extends Component {
           api={this.nodeApi} 
           twins={twins} 
           endpointFilter={endpointFilter}
-          filteredEndpoints={filteredEndpoints} 
+          filteredEndpoints={filteredEndpoints}
+          publishedNodes={publishedNodes} 
           t={t}
           refresh={refresh} />
       </PageContent>

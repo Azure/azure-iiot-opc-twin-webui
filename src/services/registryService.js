@@ -51,10 +51,10 @@ export class RegistryService {
   }
 
   static getSupervisor(id) {
-    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors${id}`, undefined);
+    return HttpClient.get(`${ENDPOINT_REGISTRY}/v1/supervisors/${id}`, undefined);
   }
 
-  static updateSupervisor(payload) {
-    return HttpClient.patch(`${ENDPOINT_REGISTRY}/v1/supervisors`, payload);
+  static updateSupervisor(id, payload) {
+    return HttpClient.patch(`${ENDPOINT_REGISTRY}/v1/supervisors/${id}`, payload);
   }
 }

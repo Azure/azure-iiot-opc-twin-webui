@@ -8,9 +8,6 @@
     "start": "start"
   },
   "pageHeader": "Start Page",
-  "startCounter": "Start Counter",
-  "resetCounter": "Reset Counter",
-  "count": "Count: {{count}}",
   "delete": "Delete",
   "scan": "Scan",
   "securityMode": "Security Mode: ",
@@ -27,11 +24,15 @@
     "errorMessage": "Operation failed: ",
     "writeSuccesfully": "Variable written succesfully",
     "callSuccesfully": "Method executed succesfully",
+    "publishlSuccesfully": "Publish executed succesfully",
+    "unpublishSuccesfully": "Unpublish executed succesfully",
     "noAccess": "this variable cannot be accessed",
     "options": {
       "read": "Read",
       "write": "Write",
-      "call": "Call"
+      "call": "Call",
+      "publish": "Publish",
+      "unPublish": "UnPublish"
     },
     "validation": {
       "required": "Parameter is required",
@@ -57,6 +58,7 @@
     "endpoint": "Endpoint:",
     "node": "Node:",
     "nodeType": "node type: ",
-    "value": " Value: "
+    "value": " Value: ",
+    "published": "-> published"
   }
 }
