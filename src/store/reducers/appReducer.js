@@ -267,7 +267,9 @@ const updatePathReducer = (state, action) => {
 }
 
 const updatePublishedNodesReducer = (state, action) => { 
-  const published = action.payload.items.map((item) => {return {id: item.nodeId}});
+  const published = action.payload.items !== null
+    ? action.payload.items.map((item) => {return {id: item.nodeId}})
+    : {}
 
   return update(state, {
     entities: {
