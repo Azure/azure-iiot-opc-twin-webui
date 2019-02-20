@@ -17,7 +17,8 @@ import {
   getSupervisors,
   getPaths,
   getEndpointFilter,
-  getFilteredEndpoints
+  getFilteredEndpoints,
+  getPublishedNodes
 } from 'store/reducers/appReducer';
 
 const mapStateToProps = state => ({
@@ -31,6 +32,7 @@ const mapStateToProps = state => ({
   twins: getTwins(state),
   supervisors: getSupervisors(state),
   path: getPaths(state),
+  publishedNodes: getPublishedNodes(state),
   endpointFilter: getEndpointFilter(state),
   filteredEndpoints: getFilteredEndpoints(state)
 });
@@ -45,6 +47,7 @@ const mapDispatchToProps = dispatch => {
     fetchTwins: () => dispatch(epics.actions.fetchTwins()),
     fetchSupervisors: () => dispatch(epics.actions.fetchSupervisors()),
     fetchPath: (path) => dispatch(epics.actions.fetchPath(path)),
+    fetchPublishedNodes: (endpointId) => dispatch(epics.actions.fetchPublishedNodes({ endpointId })),
     updateEndpointFilter: endpointFilter => dispatch(appRedux.actions.updateEndpointFilter(endpointFilter))
   };
 }

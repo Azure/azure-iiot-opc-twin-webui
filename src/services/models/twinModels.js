@@ -31,6 +31,19 @@ export const toCallNodeMethodModel = (params = {}, nodeId, values) => {
 };
 
 export const toScanSupervisorModel = (params = {}) => ({
-    id: params.id,
     discovery: params.discovery
+});
+
+export const toPublishValueModel = (params = {}) => ({
+    item:{
+        nodeId: params.id
+    }
+});
+
+export const toUnPublishValueModel = (params = {}) => ({
+    nodeId: params.id
+});
+
+export const toGetPublishedNodesModel = () => ({
+    
 });
