@@ -32,7 +32,8 @@ class DataNode extends Component {
     this.state = { 
       expanded: false,
       ...closedFlyoutState,
-      path: undefined
+      path: undefined,
+      showSpinner: false
     };
   }
 
@@ -64,7 +65,12 @@ class DataNode extends Component {
         api.fetchNode(endpoint, data.id);
         api.fetchPublishedNodes(endpoint);
       } 
+
       this.setState({ expanded: !this.state.expanded });
+
+      if (!this.state.expanded) {
+        this.setState({ showSpinner: true });
+      }
     }
     
     const currentPath = api.fetchPath(path + '/' + data.displayName);
@@ -84,7 +90,7 @@ class DataNode extends Component {
 
   render() {
     const { data, api, endpoint, label, t, publishedNodes } = this.props;
-    const { path } = this.state;
+    const { path, showSpinner } = this.state;
     const targets = (api.getReferences(endpoint, data.id) || [])
       .map(targetId => api.getNode(endpoint, targetId));
     const error = api.isNodeError(endpoint, data.id);
@@ -101,7 +107,7 @@ class DataNode extends Component {
         <div className="hierarchy-name" >
           { data.children ? <Expander expanded={this.state.expanded} onClick={this.toggle} /> : <div className="hierarchy-space"/> }
           <div className="node-name" onClick={this.onClickAction}>{ data.displayName } </div> 
-          { api.isNodePending(endpoint, data.id) ? <Indicator /> : null }
+          { (api.isNodePending(endpoint, data.id) && showSpinner) ? <Indicator /> : (showSpinner ? this.setState({ showSpinner: false }) : null) }
         </div>
         <div className="node-details">
           { data.description }
