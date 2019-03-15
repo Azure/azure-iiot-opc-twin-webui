@@ -5,13 +5,13 @@ export const toReadValueModel = (response = {}) => ({
 });
 
 export const toWriteValueModel = (params = {}, value) => ({
-    nodeId: params.id,
+    nodeId: params.nodeId,
     value: value,
     dataType: params.dataType
 });
 
 export const toCallNodeMethodMetadataModel = (params = {}) => ({
-    methodId: params.id
+    methodId: params.nodeId
 });
 
 export const toCallNodeMethodModel = (params = {}, nodeId, values) => {
@@ -36,12 +36,12 @@ export const toScanSupervisorModel = (params = {}) => ({
 
 export const toPublishValueModel = (params = {}) => ({
     item:{
-        nodeId: params.id
+        nodeId: params.nodeId
     }
 });
 
 export const toUnPublishValueModel = (params = {}) => ({
-    nodeId: params.id
+    nodeId: params.nodeId
 });
 
 export const toGetPublishedNodesModel = () => ({

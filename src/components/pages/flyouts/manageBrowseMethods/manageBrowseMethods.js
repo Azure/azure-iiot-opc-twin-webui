@@ -83,10 +83,10 @@ export class ManageBrowseMethods extends LinkedComponent {
 
     switch (this.actionLink.value) {
       case READ:
-        this.subscription = TwinService.readNodeValue(endpoint, data.id)
+        this.subscription = TwinService.readNodeValue(endpoint, data.nodeId)
         .subscribe(
           (response) => {
-            this.setState({ value: response.value })
+            this.setState({ value: response.value }) // TODO : Print errorInfo if !== null
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -102,7 +102,7 @@ export class ManageBrowseMethods extends LinkedComponent {
         this.subscription = TwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, this.writeValueLink.value), null, 2))
         .subscribe(
           (response) => {
-            this.setState({ isPending: false });
+            this.setState({ isPending: false }); // TODO : Print errorInfo if !== null
           },
           error => this.setErrorState(error)
         );
@@ -110,10 +110,10 @@ export class ManageBrowseMethods extends LinkedComponent {
       case CALL:
         const { metadataCall } = this.state;  
 
-        this.subscription = TwinService.callNodeMethod(endpoint, JSON.stringify(toCallNodeMethodModel(metadataCall, data.id, this.argumentLinks), null, 2))
+        this.subscription = TwinService.callNodeMethod(endpoint, JSON.stringify(toCallNodeMethodModel(metadataCall, data.nodeId, this.argumentLinks), null, 2))
         .subscribe(
           (response) => {
-            this.setState({ value: response.value });
+            this.setState({ value: response.value }); // TODO : Print errorInfo if !== null
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -123,7 +123,7 @@ export class ManageBrowseMethods extends LinkedComponent {
         this.subscription = TwinService.publishNodeValues(endpoint, JSON.stringify(toPublishValueModel(data), null, 2))
         .subscribe(
           (response) => {
-            this.setState({ value: response.value })
+            this.setState({ value: response.value }) // TODO : Print errorInfo if !== null
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -133,7 +133,7 @@ export class ManageBrowseMethods extends LinkedComponent {
         this.subscription = TwinService.unPublishNodeValues(endpoint, JSON.stringify(toUnPublishValueModel(data), null, 2))
         .subscribe(
           (response) => {
-            this.setState({ value: response.value })
+            this.setState({ value: response.value }) // TODO : Print errorInfo if !== null
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)

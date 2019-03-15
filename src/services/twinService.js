@@ -31,7 +31,7 @@ export class TwinService {
   }
 
   static callNodeMethodMetadata(endpointId, payload) {
-    return HttpClient.post(`${ENDPOINT_TWINS}/v1/call/${endpointId}/$metadata`, payload);
+    return HttpClient.post(`${ENDPOINT_TWINS}/v1/call/${endpointId}/metadata`, payload);
   }
 
   static callNodeMethod(endpointId, payload) {

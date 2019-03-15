@@ -121,7 +121,7 @@ const endpointListSchema = new schema.Array(endpointEntity);
 const applicationEntity = new schema.Entity('applications', { endpoints: endpointListSchema }, { idAttribute: 'applicationId'});
 const applicationListSchema = new schema.Array(applicationEntity);
 
-const nodeEntity = new schema.Entity('nodes');
+const nodeEntity = new schema.Entity('nodes', {}, { idAttribute: 'nodeId'});
 const referenceEntity = new schema.Entity('references', { target: nodeEntity });
 
 const referenceListSchema = new schema.Array(referenceEntity);
@@ -236,7 +236,7 @@ const updateRootNodeReducer = (state, action) => {
 }
 
 const updateTwinsReducer = (state, action) => { 
-  const flatTwin = action.payload.items.map((item) => {return {id: item.applicationId, endpointId: item.registration.id, activated: item.activated}});
+  const flatTwin = action.payload.items.map((item) => {return {id: item.applicationId, endpointId: item.registration.id, activated: (item.activationState === "ActivatedAndConnected" || item.activationState === "Activated")}});
  
   return update(state, {
     entities: {

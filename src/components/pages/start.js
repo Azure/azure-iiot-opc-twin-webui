@@ -48,7 +48,7 @@ class DataNode extends Component {
   update () {
     const { data, api, endpoint } = this.props;
     if (this.state.expanded) {
-      api.fetchNode(endpoint, data.id);
+      api.fetchNode(endpoint, data.nodeId);
       api.fetchPublishedNodes(endpoint);
     }
   }
@@ -61,8 +61,8 @@ class DataNode extends Component {
     const { data, api, endpoint, path } = this.props;
 
     if (data.children){
-      if (!isDef(api.getReferences(endpoint, data.id))){
-        api.fetchNode(endpoint, data.id);
+      if (!isDef(api.getReferences(endpoint, data.nodeId))){
+        api.fetchNode(endpoint, data.nodeId);
         api.fetchPublishedNodes(endpoint);
       } 
 
@@ -91,13 +91,13 @@ class DataNode extends Component {
   render() {
     const { data, api, endpoint, label, t, publishedNodes } = this.props;
     const { path, showSpinner } = this.state;
-    const targets = (api.getReferences(endpoint, data.id) || [])
+    const targets = (api.getReferences(endpoint, data.nodeId) || [])
       .map(targetId => api.getNode(endpoint, targetId));
-    const error = api.isNodeError(endpoint, data.id);
+    const error = api.isNodeError(endpoint, data.nodeId);
 
     const browseFlyoutOpen = this.state.openFlyoutName === 'Browse';
 
-    const isPublished = publishedNodes.some((x) =>  { return x.id === data.id; });
+    const isPublished = publishedNodes.some((x) =>  { return x.nodeId === data.nodeId; });
 
     return (
       <div className="hierarchy-level">
@@ -107,7 +107,7 @@ class DataNode extends Component {
         <div className="hierarchy-name" >
           { data.children ? <Expander expanded={this.state.expanded} onClick={this.toggle} /> : <div className="hierarchy-space"/> }
           <div className="node-name" onClick={this.onClickAction}>{ data.displayName } </div> 
-          { (api.isNodePending(endpoint, data.id) && showSpinner) ? <Indicator /> : (showSpinner ? this.setState({ showSpinner: false }) : null) }
+          { (api.isNodePending(endpoint, data.nodeId) && showSpinner) ? <Indicator /> : (showSpinner ? this.setState({ showSpinner: false }) : null) }
         </div>
         <div className="node-details">
           { data.description }
