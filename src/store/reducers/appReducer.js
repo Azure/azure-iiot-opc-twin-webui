@@ -182,7 +182,7 @@ const updateApplicationsReducer = (state, action) => {
 
   return update(state, {
     entities: {
-      applications: { $set: applications }
+      applications: { $merge: applications }
     },
     ...unsetPendingFlag(action.pendingFlag)
   });

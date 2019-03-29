@@ -324,12 +324,19 @@ class ApplicationNode extends Component {
       ); 
   }
 
+  isVisible() {
+    const { supervisorId, applicationData } = this.props;
+    
+    return applicationData.supervisorId.includes(supervisorId) 
+  }
+
   render() {
     const { t, applicationData, api, twins, filteredEndpoints, publishedNodes } = this.props;
     const { isPending } = this.state;
     const error = api.isEndpointsError(applicationData.applicationId);
 
     return (
+      this.isVisible() &&
       <div className="hierarchy-level">
         <div className="hierarchy-name">
           {t('explorerLabel.server')}<br />
