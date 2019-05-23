@@ -27,6 +27,7 @@
     "publishlSuccesfully": "Publish executed succesfully",
     "unpublishSuccesfully": "Unpublish executed succesfully",
     "noAccess": "this variable cannot be accessed",
+    "errorInfo": "Error info:",
     "options": {
       "read": "Read",
       "write": "Write",
