@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft. All rights reserved.
 
 export const toReadValueModel = (response = {}) => ({
-    value: response.value
+    value: response.value,
+    errorInfo: response.errorInfo,
 });
 
 export const toWriteValueModel = (params = {}, value) => ({

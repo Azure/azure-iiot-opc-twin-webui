@@ -53,7 +53,8 @@ export class ManageBrowseMethods extends LinkedComponent {
       inputArguments: [],
       metadataCall: {},
       isAccessible: true,
-      changes: false
+      changes: false,
+      errorInfo: undefined
     };
 
     this.checkAccessLevel();
@@ -87,6 +88,9 @@ export class ManageBrowseMethods extends LinkedComponent {
         .subscribe(
           (response) => {
             this.setState({ value: response.value }) // TODO : Print errorInfo if !== null
+            if (response.errorInfo !== undefined || response.errorInfo !== null) {
+              this.setState({errorInfo: response.errorInfo});
+            }
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -102,6 +106,9 @@ export class ManageBrowseMethods extends LinkedComponent {
         this.subscription = TwinService.writeNodeValue(endpoint, JSON.stringify(toWriteValueModel(data, this.writeValueLink.value), null, 2))
         .subscribe(
           (response) => {
+            if (response.errorInfo !== undefined || response.errorInfo !== null) {
+              this.setState({errorInfo: response.errorInfo});
+            }
             this.setState({ isPending: false }); // TODO : Print errorInfo if !== null
           },
           error => this.setErrorState(error)
@@ -114,6 +121,9 @@ export class ManageBrowseMethods extends LinkedComponent {
         .subscribe(
           (response) => {
             this.setState({ value: response.value }); // TODO : Print errorInfo if !== null
+            if (response.errorInfo !== undefined || response.errorInfo !== null) {
+              this.setState({errorInfo: response.errorInfo});
+            }
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -124,6 +134,9 @@ export class ManageBrowseMethods extends LinkedComponent {
         .subscribe(
           (response) => {
             this.setState({ value: response.value }) // TODO : Print errorInfo if !== null
+            if (response.errorInfo !== undefined || response.errorInfo !== null) {
+              this.setState({errorInfo: response.errorInfo});
+            }
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -134,6 +147,9 @@ export class ManageBrowseMethods extends LinkedComponent {
         .subscribe(
           (response) => {
             this.setState({ value: response.value }) // TODO : Print errorInfo if !== null
+            if (response.errorInfo !== undefined || response.errorInfo !== null) {
+              this.setState({errorInfo: response.errorInfo});
+            }
             this.setState({ isPending: false });
           },
           error => this.setErrorState(error)
@@ -198,6 +214,10 @@ export class ManageBrowseMethods extends LinkedComponent {
     return this.actionLink.value === UNPUBLISH; 
   }
 
+  isErrorInfo (){
+    return ((this.state.errorInfo !== undefined) && (this.state.errorInfo !== null))
+  }
+
   getCallMetadata () {
     const { endpoint, data } = this.props;
     const { inputArguments } = this.state;
@@ -225,7 +245,7 @@ export class ManageBrowseMethods extends LinkedComponent {
 
   render() {
     const { t, onClose, data } = this.props;
-    const { isPending, changesApplied, value, inputArguments, error, isAccessible } = this.state;
+    const { isPending, changesApplied, value, inputArguments, error, isAccessible, errorInfo } = this.state;
 
     const actionOptions = actionType.map((value) => ({
       label: t(`browseFlyout.options.${value}`),
@@ -294,10 +314,10 @@ export class ManageBrowseMethods extends LinkedComponent {
                           isPending 
                             ? <Indicator /> 
                             : !isDef(error) 
-                              ? <Json>{ value }</Json> 
+                              ? <Json>{ value }</Json>
                               : <div>{t('browseFlyout.errorMessage')} {error.message} </div> 
                         } 
-                      </SectionDesc>
+                      </SectionDesc>  
                     }
                     {this.isWrite() &&
                       <SectionDesc>
@@ -344,6 +364,22 @@ export class ManageBrowseMethods extends LinkedComponent {
                       </SectionDesc>
                     }
                   </SummaryBody>
+
+                  { this.isErrorInfo() && <SectionHeader>{t('browseFlyout.errorInfo')}</SectionHeader>}
+                  <SummaryBody>
+                    {this.isErrorInfo() && 
+                      <SectionDesc>
+                        { 
+                          isPending 
+                            ? null
+                            : !isDef(error) 
+                              ? <Json>{ errorInfo }</Json>
+                              : null
+                        } 
+                      </SectionDesc>  
+                    }
+                  </SummaryBody>
+
                 </SummarySection>
               }
               {
