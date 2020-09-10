@@ -21,7 +21,7 @@
     "react-router-dom": "4.2.2",
     "react-scripts": "1.0.17",
     "react-select": "1.0.0-rc.10",
-    "react-svg": "2.1.22",
+    "react-svg": "10.0.23",
     "redux": "3.7.2",
     "redux-observable": "0.17.0",
     "reselect": "3.0.1",
